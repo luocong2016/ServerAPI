@@ -1,6 +1,8 @@
-extends layout
-
-block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+doctype html
+html
+  head
+    title= error.status
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body(text-align='center')
+    img(src='/image/404.jpg')
+    pre #{error.stack}

@@ -1,5 +1,10 @@
-extends layout
-
-block content
-  h1= title
-  p Welcome to #{title}
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/hewvo.css')
+  body
+    div(id='box')
+      span(class='txt') I
+      span(class="♥") ♥
+      span(class="txt",contenteditable,spellcheck="false") BLUR
