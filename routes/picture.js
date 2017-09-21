@@ -1,7 +1,6 @@
 /**
  * Created by Lutz on 2017/9/19 0019.
- *
- * https://segmentfault.com/a/1190000005706031
+ * http://www.cnblogs.com/xiaofeixiang/p/5140673.html
  */
 const fs = require('fs');
 const path = require('path');
@@ -14,14 +13,37 @@ const formidable = require('formidable');
 /* 配置 */
 const PICTURE_UPLOAD = '/picture/'; //设置上传路径
 const PICTURE_MAX_SIZE = 2 * 1024 * 1024; //设置文件大小
+const PICTURE_PATH = path.resolve(__dirname, '..', 'public/picture'); //picture文件夹路径
+
+/* 删除上传失败文件 */
+const deletePic = (filename) => {
+    if(!filename){
+        return
+    }
+
+    const upload_ = 'upload_'
+
+    if(filename.indexOf(upload_) !== -1){
+        filename = filename.substring(filename.indexOf(upload_))
+    }
+
+    const filePath = path.resolve(PICTURE_PATH, filename);
+
+    fs.exists(filePath, function(exists){
+        if(exists) {
+            fs.unlink(filePath)
+        }
+    })
+}
+
 
 /*
 *  ## POST
 */
-
 /* 上传一张图片 */
 router.post('/putPicture', function (req, res, next){
     const response = {status:false}; //输出数据
+
     const form = new formidable.IncomingForm(); //创建上传表单
     form.encoding = 'utf-8'; //设置编码格式
     form.uploadDir = 'public' + PICTURE_UPLOAD; //设置上传目录
@@ -29,7 +51,7 @@ router.post('/putPicture', function (req, res, next){
     form.parse(req, function (err, fields, files) {
 
         if(err){
-            response.message = err
+            response.message = '上传过程错误，请重新上传'
             res.send(JSON.stringify(response));
             return
         }
@@ -37,6 +59,7 @@ router.post('/putPicture', function (req, res, next){
         if(files.upload.size > PICTURE_MAX_SIZE){
             response.message = `图片最大不得超过:${PICTURE_MAX_SIZE/1024}KB`;
             res.send(JSON.stringify(response));
+            deletePic(files.upload.path)
             return
         }
 
@@ -56,9 +79,10 @@ router.post('/putPicture', function (req, res, next){
                 break;
         }
 
-        if(extName.length == 0){
+        if(extName.length === 0){
             response.message = '只支持png和jpg格式的图片';
             res.send(JSON.stringify(response));
+            deletePic(files.upload.path);
             return
         }
 
@@ -81,7 +105,7 @@ router.post('/putPicture', function (req, res, next){
 router.get('/getPicture', function(req, res, next){
 
     let data = []
-    fs.readdirSync(path.resolve(__dirname, '..', 'public/picture')).forEach(function(file){
+    fs.readdirSync(PICTURE_PATH).forEach(function(file){
         data.push({
             imgUrl:PICTURE_UPLOAD + file
         })
@@ -93,9 +117,11 @@ router.get('/getPicture', function(req, res, next){
 
 /* 浏览器浏览图片 */
 router.get('/:url', function (req, res, next) {
-    fs.exists('picture', function(exists){
+    const filePath = path.resolve(PICTURE_PATH, req.params.url)
+    fs.exists(filePath, function(exists){
         if(exists){
-            res.render('picture', { url: PICTURE_UPLOAD + req.params.url });
+            let content = new Buffer(fs.readFileSync(filePath, 'binary'));
+            res.write(content, 'binary')
         }else{
             const err = new Error('Not Found');
             err.status = 404;
