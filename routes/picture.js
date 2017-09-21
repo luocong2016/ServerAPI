@@ -4,6 +4,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const mime = require('mime');
 
 const express = require('express');
 const router = express.Router();
@@ -121,6 +122,7 @@ router.get('/:url', function (req, res, next) {
     fs.exists(filePath, function(exists){
         if(exists){
             let content = new Buffer(fs.readFileSync(filePath, 'binary'));
+            res.writeHead(200,{'Content-type': mime.lookup(filePath)})
             res.write(content, 'binary')
         }else{
             const err = new Error('Not Found');
