@@ -3,7 +3,8 @@
  */
 
 /* 常量 */
-const limit = 5;
+const limit_5 = 5;
+const limit_10 = 10;
 
 /* 配置存储session信息的mysql */
 const store ={
@@ -28,7 +29,7 @@ const cookie = {
 }
 
 module.exports = {
-    limit,
+    limit_5,
     store,
     cookie,
 }

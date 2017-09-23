@@ -42,9 +42,11 @@ CREATE TABLE `teacher`( #教师信息表
     `teacherSynopsis` TINYTEXT DEFAULT NULL, #教师简介
     `teacherPicture` VARCHAR(500) DEFAULT NULL, ##照片图片路径
     `cellPhone` VARCHAR(16) DEFAULT NULL, #联系电话
-    `courseTypeCode` int(12) NOT NULL, #教授课程
+    `courseTypeCode` VARCHAR(200) DEFAULT NULL, #教授课程(多选：code1^code2^...codeN)
+    `weight` int(12) DEFAULT NULL, #权重（用于排名)
     `createtime` datetime DEFAULT CURRENT_TIMESTAMP, #创建时间
     `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, #修改时间
+    `schoolCode` VARCHAR(32) DEFAULT NULL, #校区Code
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -55,8 +57,11 @@ CREATE TABLE `school`( #校区信息表
     `schoolCode` VARCHAR(32) NOT NULL PRIMARY KEY, #校区Code
     `schoolName` VARCHAR(24) DEFAULT NULL, #校区名称
     `schoolSynopsis` TINYTEXT DEFAULT NULL, #校区简介
-    `schooladdress` VARCHAR(50) DEFAULT NULL, ##校区地址
-    `schoolPicture` VARCHAR(500) DEFAULT NULL, ##校区图片路径
+    `schooladdress` VARCHAR(50) DEFAULT NULL, #校区具体地址
+    `schoolPicture` VARCHAR(500) DEFAULT NULL, #校区图片路径
+    `province_id` VARCHAR(20) DEFAULT NULL, #省
+    `city_id` INT(10) DEFAULT NULL,#市
+    `region_id` INT(10) DEFAULT NULL, #区/县
     `Telephone` VARCHAR(16) DEFAULT NULL #联系电话
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -67,14 +72,14 @@ INSERT INTO `school` (`schoolCode`, `schoolName`, `schoolSynopsis`, `schooladdre
 (UUID(), '北京亚运村校区' ,NULL ,'朝阳区南沙滩66号院1号楼3层', '400-690-6164');
 
 CREATE TABLE `new`( #新闻动态信息表
-    `newCode` VARCHAR(32) NOT NULL PRIMARY KEY,
-    `newTitle` VARCHAR(24) DEFAULT NULL, #新闻标题
-    `newSynopsis` TINYTEXT DEFAULT NULL, #新闻简介
-    `newDetail` TEXT DEFAULT NULL, #新闻详情
+    `newsCode` VARCHAR(32) NOT NULL PRIMARY KEY,
+    `newsTitle` VARCHAR(24) DEFAULT NULL, #新闻标题
+    `newsSynopsis` TINYTEXT DEFAULT NULL, #新闻简介
+    `newsDetail` TEXT DEFAULT NULL, #新闻详情
+    `newsPicture` VARCHAR(500) DEFAULT NULL, ##新闻图片路径
     `createtime` datetime DEFAULT CURRENT_TIMESTAMP, #创建时间
     `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, #修改时间
-    `newPicture` VARCHAR(500) DEFAULT NULL, ##新闻图片路径
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `new`(`newCode`, `newTitle`, `newSynopsis`, `newDetail`) VALUES(UUID(), '童程童美《青少年趣味编程》系列图书正版上线', '童程童美自主研发的《青少年趣味编程》系列图书正版上线了', '《规划》指出，实施全民智能教育项目，在中小学阶段设置人工智能相关课程，逐步推广编程教育，鼓励社会力量参与寓教于乐的编程教学软件、游戏的开发和推广。');
+INSERT INTO `news`(`newsCode`, `newsTitle`, `newsSynopsis`, `newsDetail`) VALUES(UUID(), '童程童美《青少年趣味编程》系列图书正版上线', '童程童美自主研发的《青少年趣味编程》系列图书正版上线了', '《规划》指出，实施全民智能教育项目，在中小学阶段设置人工智能相关课程，逐步推广编程教育，鼓励社会力量参与寓教于乐的编程教学软件、游戏的开发和推广。');
