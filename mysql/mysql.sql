@@ -49,8 +49,8 @@ CREATE TABLE `teacher`( #教师信息表
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `teacher` (`teacherCode`, `teacherName`, `teacherSynopsis`) VALUES(UUID(), '少年编程'),
-(UUID(),'机器人编程');
+INSERT INTO `teacher` (`teacherCode`, `teacherName`, `teacherSynopsis`) VALUES(UUID(), '石远丽', 'JAVA企业级应用专家，系统评测专家。曾任文思创新技术有限公司高级项目经理，具备多年的Java企业级应用系统开发经验。责任心强、授课思路清晰、逻辑严谨、复杂问题简单化，易于学生理解。善于寻找生活中的实例模拟编程过程、条理清晰、主次分明、重点难点突出、引人入胜。'),
+(UUID(),'汪美玲','授课自然,通过互动引导示范观察等方法。在教学中,开拓学生的创意思维,使得学生能轻松掌握编程技术的要点，细致耐心的解决学员的问题。');
 
 CREATE TABLE `school`( #校区信息表
     `schoolCode` VARCHAR(32) NOT NULL PRIMARY KEY, #校区Code
@@ -78,4 +78,4 @@ CREATE TABLE `new`( #新闻动态信息表
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `new`(`newCode`, `newTitle`, `newSynopsis`, `newDetail`) VALUES(UUID(), '童程童美《青少年趣味编程》系列图书正版上线', '童程童美自主研发的《青少年趣味编程》系列图书正版上线了', '《规划》指出，实施全民智能教育项目，在中小学阶段设置人工智能相关课程，逐步推广编程教育，鼓励社会力量参与寓教于乐的编程教学软件、游戏的开发和推广。')
+INSERT INTO `new`(`newCode`, `newTitle`, `newSynopsis`, `newDetail`) VALUES(UUID(), '童程童美《青少年趣味编程》系列图书正版上线', '童程童美自主研发的《青少年趣味编程》系列图书正版上线了', '《规划》指出，实施全民智能教育项目，在中小学阶段设置人工智能相关课程，逐步推广编程教育，鼓励社会力量参与寓教于乐的编程教学软件、游戏的开发和推广。');
