@@ -106,6 +106,7 @@ router.post('/putPicture', function (req, res, next){
 router.get('/getPicture', function(req, res, next){
 
     let data = []
+    debug(data)
     fs.readdirSync(PICTURE_PATH).forEach(function(file){
         data.push({
             imgUrl:PICTURE_UPLOAD + file
