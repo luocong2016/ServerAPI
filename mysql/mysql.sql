@@ -53,13 +53,19 @@ INSERT INTO `teacher` (`teacherCode`, `teacherName`, `teacherSynopsis`) VALUES(U
 (UUID(),'机器人编程');
 
 CREATE TABLE `school`( #校区信息表
-    `schoolCode` VARCHAR(32)) NOT NULL PRIMARY KEY, #校区Code
+    `schoolCode` VARCHAR(32) NOT NULL PRIMARY KEY, #校区Code
     `schoolName` VARCHAR(24) DEFAULT NULL, #校区名称
     `schoolSynopsis` TINYTEXT DEFAULT NULL, #校区简介
     `schooladdress` VARCHAR(50) DEFAULT NULL, ##校区地址
     `schoolPicture` VARCHAR(500) DEFAULT NULL, ##校区图片路径
     `Telephone` VARCHAR(16) DEFAULT NULL #联系电话
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `school` (`schoolCode`, `schoolName`, `schoolSynopsis`, `schooladdress`, `Telephone`) VALUES(UUID(), '北京大钟寺校区' ,NULL ,'海淀区北三环西路甲18号中鼎大厦B座3、5、8层', '400-690-6161'),
+(UUID(), '北京大钟寺校区' ,NULL ,'海淀区北三环西路甲18号中鼎大厦B座3、5、8层', '400-690-6161'),
+(UUID(), '北京万寿路校区' ,NULL ,'海淀区复兴路47号天行建商务大厦1106', '400-690-6162'),
+(UUID(), '北京广渠门校区' ,NULL ,'东城区广渠家园25号启达大厦4层', '400-690-6163'),
+(UUID(), '北京亚运村校区' ,NULL ,'朝阳区南沙滩66号院1号楼3层', '400-690-6164');
 
 CREATE TABLE `new`( #新闻动态信息表
     `newCode` VARCHAR(32) NOT NULL PRIMARY KEY,
@@ -71,3 +77,5 @@ CREATE TABLE `new`( #新闻动态信息表
     `newPicture` VARCHAR(500) DEFAULT NULL, ##新闻图片路径
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `new`(`newCode`, `newTitle`, `newSynopsis`, `newDetail`) VALUES(UUID(), '童程童美《青少年趣味编程》系列图书正版上线', '童程童美自主研发的《青少年趣味编程》系列图书正版上线了', '《规划》指出，实施全民智能教育项目，在中小学阶段设置人工智能相关课程，逐步推广编程教育，鼓励社会力量参与寓教于乐的编程教学软件、游戏的开发和推广。')
