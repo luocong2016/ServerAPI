@@ -36,7 +36,6 @@ CREATE TABLE `courseType`( #课程类别表
 INSERT INTO `courseType` (`courseTypeCode`, `courseTypeName`) VALUES(UUID(), '少年编程'),
 (UUID(),'机器人编程');
 
-
 CREATE TABLE `teacher`( #教师信息表
     `teacherCode` VARCHAR(32) NOT NULL PRIMARY KEY,
     `teacherName` VARCHAR(24) DEFAULT NULL, #教师姓名
