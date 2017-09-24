@@ -2,10 +2,6 @@
  * Created by Lutz on 2017/9/23 0023.
  */
 
-/* 常量 */
-const limit_5 = 5;
-const limit_10 = 10;
-
 /* 配置存储session信息的mysql */
 const store ={
     user:'root',
@@ -29,7 +25,6 @@ const cookie = {
 }
 
 module.exports = {
-    limit_5,
     store,
     cookie,
 }

@@ -2,7 +2,9 @@
  * Created by Lutz on 2017/9/23 0023.
  */
 
-import { limit_5, limit_10 } from './mysqlConfig'
+/* 常量 */
+const limit_5 = 5;
+const limit_10 = 10;
 
 /* 有效标志表 */
 const valid = {
