@@ -108,8 +108,8 @@ router.post('/deleteCourse', function(req, res, next){
         res.send(JSON.stringify(response));
         return
     }
-    let sql = 'DELETE FROM `course` WHERE `courseCode` =' + `'${courseCode}';`;
-    const result = operation(sql);
+    let sql = 'DELETE FROM `course` WHERE `courseCode` = ?';
+    const result = operation(sql,[courseCode]);
     result.then(function(data){
         if(data.affectedRows === 0){
             response.message = 'courseCode: Non-existent';
