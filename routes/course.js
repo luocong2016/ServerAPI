@@ -40,14 +40,14 @@ router.post('/getCourseList', function(req, res, next) {
 
 router.post('/updateCourse', function(req, res, next) {
     const response = {status: false}
-    let { courseCode, courseTypeCode, courseName = 'NULL', courseSynopsis = ' NULL', courseDetail = ' NULL' } = req.body
+    let { courseCode, courseTypeCode='NULL', courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
     if(!courseCode || courseCode.length !== 32){
-        response.message = `courseCode 错误`
+        response.message = `courseCode: error`
         res.send(JSON.stringify(response));
         return
     }
     if(courseTypeCode && courseTypeCode.split('^').length > limi_5){
-        response.message = `courseTypeCode不能大于${limi_5}`
+        response.message = `courseTypeCode: Not greater than ${limi_5}`
         res.send(JSON.stringify(response));
         return
     }
@@ -62,13 +62,62 @@ router.post('/updateCourse', function(req, res, next) {
         "',`courseDetail` = '" + courseDetail +
         "' WHERE `courseCode` ='" + courseCode + "';";
 
-
-    console.log(courseTypeCode)
-    console.log(sql)
     const result = operation(sql);
     result.then(function(data){
         response.status = true;
-        response.data = '修改成功';
+        response.data = 'UPDATE: success';
+        res.send(JSON.stringify(response));
+    }).catch(function(err){
+        response.message = err;
+        res.send(JSON.stringify(response));
+    });
+})
+
+router.post('/insertCourse', function(req, res, next){
+    let response = {status:false}
+    let { courseTypeCode, courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
+    if(courseSynopsis == null){
+        response.message = 'courseSynopsis: Is not null';
+        res.send(JSON.stringify(response));
+        return
+    }
+    if(courseDetail == null){
+        response.message = 'courseDetail: Is not null';
+        res.send(JSON.stringify(response));
+        return
+    }
+
+    let sql = 'INSERT INTO `course`(`courseCode`, `courseTypeCode`, `courseName`, `courseSynopsis`, `courseDetail`) VALUES(UUID(),'+
+        `'${courseTypeCode}','${courseName}','${courseSynopsis}','${courseDetail}'` + ');';
+    const result = operation(sql);
+    result.then(function(data){
+        response.status = true;
+        response.data = 'INSERT: success';
+        res.send(JSON.stringify(response));
+    }).catch(function(err){
+        response.message = err;
+        res.send(JSON.stringify(response));
+    });
+})
+
+router.post('/deleteCourse', function(req, res, next){
+    const response = { status: false}
+    const { courseCode } = req.body;
+    if(!courseCode || courseCode.length !== 32){
+        response.message = 'courseCode: error';
+        res.send(JSON.stringify(response));
+        return
+    }
+    let sql = 'DELETE FROM `course` WHERE `courseCode` =' + `'${courseCode}';`;
+    const result = operation(sql);
+    result.then(function(data){
+        if(data.affectedRows === 0){
+            response.message = 'courseCode: Non-existent';
+            res.send(JSON.stringify(response));
+            return
+        }
+        response.status = true;
+        response.data = 'DELETE: success';
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
