@@ -17,7 +17,7 @@ INSERT INTO `valid` (`validId`, `validCode`, `validName`, `validSynopsis`) VALUE
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE `course`( #课程信息表
     `courseCode` VARCHAR(32) NOT NULL PRIMARY KEY,
-    `courseTypeCode` VARCHAR(32) DEFAULT NULL, #课程类别Code
+    `courseTypeCode` VARCHAR(2000) DEFAULT NULL, #课程类别Code
     `courseName` VARCHAR(50) DEFAULT NULL, #课程名称
     `courseSynopsis` TINYTEXT DEFAULT NULL, #课程描述
     `courseDetail` TEXT DEFAULT NULL, #课程详情
