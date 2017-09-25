@@ -13,13 +13,11 @@ const limi_5 = 5;
 const limi_10 = 10;
 
 
-router.post('/getCourseList', function(req, res, next) {
-    let { limitStart = '', limitEnd = '', current = ''} = req.body;
+router.post('/getTheacherList', function(req, res, next) {
+    let { limitStart = '', limitEnd = ''} = req.body;
     let limit = ` LIMIT ${limi_10};`;
     limitStart = parseInt(limitStart);
     limitEnd = parseInt(limitEnd);
-    current = parseInt(current);
-
     if(!isNaN(limitStart)){
         if(!isNaN(limitEnd) && limitStart < limitEnd){
             limit = ` LIMIT ${limitStart},${limitEnd};`;
@@ -40,7 +38,7 @@ router.post('/getCourseList', function(req, res, next) {
     });
 })
 
-router.post('/updateCourse', function(req, res, next) {
+router.post('/updateTheacher', function(req, res, next) {
     const response = {status: false}
     let { courseCode, courseTypeCode='NULL', courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
     if(!courseCode || courseCode.length !== 32){
@@ -75,7 +73,7 @@ router.post('/updateCourse', function(req, res, next) {
     });
 })
 
-router.post('/insertCourse', function(req, res, next){
+router.post('/insertTheacher', function(req, res, next){
     let response = {status:false}
     let { courseTypeCode, courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
     if(courseSynopsis == null){
@@ -102,7 +100,7 @@ router.post('/insertCourse', function(req, res, next){
     });
 })
 
-router.post('/deleteCourse', function(req, res, next){
+router.post('/deleteTheacher', function(req, res, next){
     const response = { status: false}
     const { courseCode } = req.body;
     if(!courseCode || courseCode.length !== 32){

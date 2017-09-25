@@ -4,8 +4,8 @@ USE `TestApp`;
 
 DROP TABLE IF EXISTS `valid`;
 CREATE TABLE `valid`( #有效标志表
-    `id` int(12) NOT NULL auto
-    `validId` VARCHAR(32) NOT NULL PRIMARY KEY,
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `validId` VARCHAR(32) NOT NULL UNIQUE,
     `validCode` int(12) NOT NULL, #有效Code
     `validName` VARCHAR(50) NOT NULL, #有效标志名称
     `validSynopsis` TINYTEXT DEFAULT NULL #有效标志描述
@@ -16,7 +16,8 @@ INSERT INTO `valid` (`validId`, `validCode`, `validName`, `validSynopsis`) VALUE
 
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE `course`( #课程信息表
-    `courseCode` VARCHAR(32) NOT NULL PRIMARY KEY,
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `courseCode` VARCHAR(32) NOT NULL UNIQUE,
     `courseTypeCode` VARCHAR(2000) DEFAULT NULL, #课程类别Code
     `courseName` VARCHAR(50) DEFAULT NULL, #课程名称
     `courseSynopsis` TINYTEXT DEFAULT NULL, #课程描述
@@ -34,7 +35,8 @@ INSERT INTO `course`(`courseCode`, `courseName`, `courseTypeCode`, `courseSynops
 
 DROP TABLE IF EXISTS `courseType`;
 CREATE TABLE `courseType`( #课程类别表
-    `courseTypeCode` VARCHAR(32) NOT NULL PRIMARY KEY,
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `courseTypeCode` VARCHAR(32) NOT NULL UNIQUE,
     `courseTypeName` VARCHAR(50) DEFAULT NULL #课程类别名称
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -43,7 +45,8 @@ INSERT INTO `courseType` (`courseTypeCode`, `courseTypeName`) VALUES ('147694fb-
 
 DROP TABLE IF EXISTS `teacher`;
 CREATE TABLE `teacher`( #教师信息表
-    `teacherCode` VARCHAR(32) NOT NULL PRIMARY KEY,
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `teacherCode` VARCHAR(32) NOT NULL UNIQUE,
     `teacherName` VARCHAR(24) DEFAULT NULL, #教师姓名
     `teacherSynopsis` TINYTEXT DEFAULT NULL, #教师简介
     `teacherPicture` VARCHAR(500) DEFAULT NULL, ##照片图片路径
@@ -61,7 +64,8 @@ INSERT INTO `teacher` (`teacherCode`, `teacherName`, `teacherSynopsis`) VALUES (
 
 DROP TABLE IF EXISTS `school`;
 CREATE TABLE `school`( #校区信息表
-    `schoolCode` VARCHAR(32) NOT NULL PRIMARY KEY, #校区Code
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `schoolCode` VARCHAR(32) NOT NULL UNIQUE, #校区Code
     `schoolName` VARCHAR(24) DEFAULT NULL, #校区名称
     `schoolSynopsis` TINYTEXT DEFAULT NULL, #校区简介
     `schooladdress` VARCHAR(50) DEFAULT NULL, #校区具体地址
@@ -80,7 +84,8 @@ INSERT INTO `school` (`schoolCode`, `schoolName`, `schoolSynopsis`, `schooladdre
 
 DROP TABLE IF EXISTS `news`;
 CREATE TABLE `news`( #新闻动态信息表
-    `newsCode` VARCHAR(32) NOT NULL PRIMARY KEY,
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `newsCode` VARCHAR(32) NOT NULL UNIQUE,
     `newsTitle` VARCHAR(24) DEFAULT NULL, #新闻标题
     `newsSynopsis` TINYTEXT DEFAULT NULL, #新闻简介
     `newsDetail` TEXT DEFAULT NULL, #新闻详情
