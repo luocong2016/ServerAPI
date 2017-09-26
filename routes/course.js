@@ -9,12 +9,17 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const limi_5 = 5;
-const limi_10 = 10;
-
+const { CURRENT, SIZE } = require('../constants')
 
 router.post('/getCourseList', function(req, res, next) {
-    let { limitStart = '', limitEnd = '', current = ''} = req.body;
+    let sql_number = 0
+    let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course` ORDER BY `createtime` DESC" + limit;
+    let { pageCurrent = CURRENT, pageSize = SIZE, courseTypeCode = '', courseName = ''} = req.body;
+
+    if(courseTypeCode != null && courseName != null){
+
+    }
+
     let limit = ` LIMIT ${limi_10};`;
     limitStart = parseInt(limitStart);
     limitEnd = parseInt(limitEnd);

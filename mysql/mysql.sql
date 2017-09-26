@@ -2,13 +2,28 @@
 CREATE DATABASE IF NOT EXISTS `TestApp`;
 USE `TestApp`;
 
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`( #用户表
+   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `userId` VARCHAR(32) NOT NULL UNIQUE,
+    `user` VARCHAR(32) NOT NULL UNIQUE,
+    `password` VARCHAR(32) NOT NULL,
+    `validCode` int(12)  NOT NULL DEFAULT 0, #有效标志（0: 有效, 1: 无效）
+    CHECK(`validCode` = 0 OR `validCode` = 1)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `user` (`userId`, `user`, `password`, `validCode`) VALUES ('test', 'test', 'test', NULL),
+('Lutz', 'Lutz', 'Lutz', 1);
+
+
 DROP TABLE IF EXISTS `valid`;
 CREATE TABLE `valid`( #有效标志表
     `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `validId` VARCHAR(32) NOT NULL UNIQUE,
     `validCode` int(12) NOT NULL, #有效Code
     `validName` VARCHAR(50) NOT NULL, #有效标志名称
-    `validSynopsis` TINYTEXT DEFAULT NULL #有效标志描述
+    `validSynopsis` TINYTEXT DEFAULT NULL, #有效标志描述
+    `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `valid` (`validId`, `validCode`, `validName`, `validSynopsis`) VALUES ('13fe35c0-a05c-11e7-aa02-c0ea56ec', '0', '正常', '有效标志'),
