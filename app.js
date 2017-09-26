@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 /* 接口地址 */
 var index = require('./routes/index');
@@ -23,6 +24,13 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({
+    secret: '12345',
+    name: 'testapp',   //这里的name值得是cookie的name，默认cookie的name是：connect.sid
+    cookie: {maxAge: 60 * 1000 * 30},  //设置maxAge失效过期
+    resave: false,
+    saveUninitialized: true,
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);

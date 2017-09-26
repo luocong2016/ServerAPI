@@ -11,7 +11,7 @@ const { operation } = require('../db/mysqlOperation');
 
 const { CURRENT, SIZE } = require('../constants')
 
-router.post('/getCourseList', function(req, res, next) {
+/*router.post('/getCourseList', function(req, res, next) {
     let sql_number = 0
     let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course` ORDER BY `createtime` DESC" + limit;
     let { pageCurrent = CURRENT, pageSize = SIZE, courseTypeCode = '', courseName = ''} = req.body;
@@ -43,7 +43,7 @@ router.post('/getCourseList', function(req, res, next) {
         response.message = err;
         res.send(JSON.stringify(response));
     });
-})
+})*/
 
 router.post('/updateCourse', function(req, res, next) {
     const response = {status: false}
