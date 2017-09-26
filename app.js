@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 
 /* 接口地址 */
 var index = require('./routes/index');
@@ -23,20 +24,22 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+
+app.use(cookieParser('session-common-id'));
 app.use(session({
-    secret: '12345',
-    name: 'testapp',   //这里的name值得是cookie的name，默认cookie的name是：connect.sid
+    name:'session-common-id',
+    secret: 'session-common-id',
+    store: new FileStore(), // 本地存储session（文本文件，也可以选择其他store，比如redis的）
     cookie: {maxAge: 60 * 1000 * 30},  //设置maxAge失效过期
-    resave: false,
-    saveUninitialized: true,
+    resave: false,// 是否每次都重新保存会话，建议false
+    saveUninitialized: false, // 是否自动保存未初始化的会话，建议false
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/picture', picture);
-app.use('/course', course)
+app.use('/course', course);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

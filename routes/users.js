@@ -1,24 +1,50 @@
-var express = require('express');
-var router = express.Router();
+const { operation } = require('../db/mysqlOperation');
+const express = require('express');
+const router = express.Router();
 
-/* GET users listing. */
-app.get('/login',function(req,res){
-    console.log('/login')
-});
-
-app.post('/login',function(req,res){
-    if(req.body.username=="love" && req.body.password=="love"){
-        var user = {'username':'love'};
-        req.session.user = user;
-        res.redirect('/admin/app/list');
-    } else {
-        res.redirect('/login');
+router.post('/login',function(req, res, next){
+    console.log('body',req.body, 'params',req.params, 'query',req.query)
+    const   response = { status: false };
+    const { user = '', password = '' } = req.body
+    if( !user || !password ){
+        response.message = 'error: user or password is not null';
+        res.send(JSON.stringify(response));
+        return
     }
+    let sql = 'SELECT * FROM `user` WHERE `user` = ?'
+    const result = operation(sql, [user]);
+    result.then(function(data){
+        if(data.length < 1 || data[0].password !== password){
+            response.message = 'error:Account or password error';
+            res.send(JSON.stringify(response));
+            return
+        }
+
+        req.session.user = {
+            user,
+        };
+
+        req.session.regenerate(function (err) {
+         if(err){
+             response.status = false;
+             response.message = 'session:Construction failure'
+         }else{
+             response.status = true;
+             response.data = true;
+         }
+         res.send(JSON.stringify(response));
+        });
+    }).catch(function(err){
+        response.message = err;
+        res.send(JSON.stringify(response));
+    });
+
+
 });
 
-app.get('/logout',function(req,res){
+
+router.post('/logout',function(req, res, next){
     req.session.user = null;
-    res.redirect('/login');
-});
+})
 
 module.exports = router;
