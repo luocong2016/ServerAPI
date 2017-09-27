@@ -3,7 +3,9 @@ const express = require('express');
 const router = express.Router();
 
 router.post('/login',function(req, res, next){
+    console.log('session', req.session)
     console.log('body',req.body, 'params',req.params, 'query',req.query)
+
     const   response = { status: false };
     const { user = '', password = '' } = req.body
     if( !user || !password ){
@@ -19,32 +21,36 @@ router.post('/login',function(req, res, next){
             res.send(JSON.stringify(response));
             return
         }
+        req.session.regenerate(function(err) {
+            if (err) {
+                response.message = 'error:Unknown error session';
+                res.send(JSON.stringify(response));
+                return
+            }
+        })
 
-        req.session.user = {
-            user,
-        };
-
-        req.session.regenerate(function (err) {
-         if(err){
-             response.status = false;
-             response.message = 'session:Construction failure'
-         }else{
-             response.status = true;
-             response.data = true;
-         }
-         res.send(JSON.stringify(response));
-        });
+        req.session.user = { user };
+        response.status = true;
+        response.data = true;
+        res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
         res.send(JSON.stringify(response));
     });
-
-
 });
 
-
-router.post('/logout',function(req, res, next){
-    req.session.user = null;
+router.get('/logout',function(req, res, next){
+    const response = { status: false };
+    req.session.destroy(function(err) {
+        if(err){
+            response.message = 'logout: Unknown error'
+            res.send(JSON.stringify(response));
+        }
+        res.clearCookie('session-common-id');
+        response.status = true;
+        response.data = true;
+        res.send(JSON.stringify(response));
+    });
 })
 
 module.exports = router;

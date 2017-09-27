@@ -9,32 +9,31 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE } = require('../constants')
+const { CURRENT, SIZE, IntFunc } = require('../constants')
 
-/*router.post('/getCourseList', function(req, res, next) {
-    let sql_number = 0
-    let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course` ORDER BY `createtime` DESC" + limit;
-    let { pageCurrent = CURRENT, pageSize = SIZE, courseTypeCode = '', courseName = ''} = req.body;
-
-    if(courseTypeCode != null && courseName != null){
-
-    }
-
-    let limit = ` LIMIT ${limi_10};`;
-    limitStart = parseInt(limitStart);
-    limitEnd = parseInt(limitEnd);
-    current = parseInt(current);
-
-    if(!isNaN(limitStart)){
-        if(!isNaN(limitEnd) && limitStart < limitEnd){
-            limit = ` LIMIT ${limitStart},${limitEnd};`;
-        }else{
-            limit = ` LIMIT ${limitStart};`;
-        }
-    }
+router.post('/getCourseList', function(req, res, next) {
     const response = {status: false}
-    const sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course` ORDER BY `createtime` DESC" + limit;
-    const result = operation(sql);
+    let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course`";
+    let where = '';
+    let order = ' ORDER BY `createtime` DESC'
+    let limit = ' LIMIT ?,?';
+    let total = null;
+
+    let dataArray = [];
+    let { pageCurrent, pageSize, courseName = void 0} = req.body;
+
+    pageCurrent = IntFunc(pageCurrent) || CURRENT;
+    pageSize = IntFunc(pageSize) || SIZE;
+
+    if(courseName != null){
+        where = " WHERE `courseName` LIKE ?";
+        dataArray.push(`%${courseName}%`);
+    }
+    dataArray = [ ...dataArray,(pageCurrent -1 )* pageSize, pageCurrent * pageSize]
+    sql += where + order + limit;
+
+
+    const result = operation(sql, dataArray);
     result.then(function(data){
         response.status = true;
         response.data = data;
@@ -43,7 +42,7 @@ const { CURRENT, SIZE } = require('../constants')
         response.message = err;
         res.send(JSON.stringify(response));
     });
-})*/
+})
 
 router.post('/updateCourse', function(req, res, next) {
     const response = {status: false}

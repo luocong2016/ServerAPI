@@ -15,6 +15,8 @@ var course = require('./routes/course');    /* 获取课程信息 */
 
 var app = express();
 
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -36,6 +38,15 @@ app.use(session({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.all('*', function(req, res, next){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
 app.use('/', index);
 app.use('/users', users);
 app.use('/picture', picture);
@@ -56,5 +67,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
 
 module.exports = app;

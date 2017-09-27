@@ -1,10 +1,10 @@
 #DROP DATABASE IF EXISTS `TestApp`;
-CREATE DATABASE IF NOT EXISTS `TestApp`;
+CREATE DATABASE IF NOT EXISTS `TestApp` CHARACTER SET utf8;
 USE `TestApp`;
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`( #用户表
-   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `userId` VARCHAR(32) NOT NULL UNIQUE,
     `user` VARCHAR(32) NOT NULL UNIQUE,
     `password` VARCHAR(32) NOT NULL,
@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS `valid`;
 CREATE TABLE `valid`( #有效标志表
     `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `validId` VARCHAR(32) NOT NULL UNIQUE,
-    `validCode` int(12) NOT NULL, #有效Code
     `validName` VARCHAR(50) NOT NULL, #有效标志名称
     `validSynopsis` TINYTEXT DEFAULT NULL, #有效标志描述
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
@@ -34,7 +33,7 @@ CREATE TABLE `course`( #课程信息表
     `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `courseCode` VARCHAR(32) NOT NULL UNIQUE,
     `courseTypeCode` VARCHAR(2000) DEFAULT NULL, #课程类别Code
-    `courseName` VARCHAR(50) DEFAULT NULL, #课程名称
+    `courseName` TINYTEXT DEFAULT NULL, #课程名称
     `courseSynopsis` TINYTEXT DEFAULT NULL, #课程描述
     `courseDetail` TEXT DEFAULT NULL, #课程详情
     `createtime` datetime DEFAULT CURRENT_TIMESTAMP, #创建时间
