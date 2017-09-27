@@ -12,7 +12,7 @@ const { operation } = require('../db/mysqlOperation');
 const { CURRENT, SIZE, IntFunc } = require('../constants')
 
 router.post('/getCourseList', function(req, res, next) {
-    const response = {status: false}
+    let response = {status: false}
     let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course`";
     let where = '';
     let order = ' ORDER BY `createtime` DESC'
@@ -28,15 +28,41 @@ router.post('/getCourseList', function(req, res, next) {
     if(courseName != null){
         where = " WHERE `courseName` LIKE ?";
         dataArray.push(`%${courseName}%`);
+        let totalResult = operation(sql + where);
+        totalResult.then(function(data){
+            total = data.length
+        }).catch(function(err){
+            response.message = err;
+            res.send(JSON.stringify(response));
+            return
+        });
     }
+
+    if(total.length< 1){
+        response= {
+            status: true,
+            data: [],
+        }
+        res.send(JSON.stringify(response));
+        return
+    }
+
     dataArray = [ ...dataArray,(pageCurrent -1 )* pageSize, pageCurrent * pageSize]
     sql += where + order + limit;
 
 
     const result = operation(sql, dataArray);
     result.then(function(data){
-        response.status = true;
-        response.data = data;
+        response= {
+            ...response,
+            status: true,
+            data,
+            pageSize,
+            page:{
+                total,
+                current: pageCurrent,
+            },
+        }
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
