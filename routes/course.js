@@ -11,13 +11,13 @@ const { operation } = require('../db/mysqlOperation');
 
 const { CURRENT, SIZE, IntFunc } = require('../constants')
 
-router.post('/getCourseList', function(req, res, next) {
+router.post('/getCourseList', async function(req, res, next) {
     let response = {status: false}
     let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course`";
     let where = '';
     let order = ' ORDER BY `createtime` DESC'
     let limit = ' LIMIT ?,?';
-    let total = null;
+    let total = 0;
 
     let dataArray = [];
     let { pageCurrent, pageSize, courseName = void 0} = req.body;
@@ -28,40 +28,41 @@ router.post('/getCourseList', function(req, res, next) {
     if(courseName != null){
         where = " WHERE `courseName` LIKE ?";
         dataArray.push(`%${courseName}%`);
-        let totalResult = operation(sql + where);
-        totalResult.then(function(data){
-            total = data.length
-        }).catch(function(err){
-            response.message = err;
-            res.send(JSON.stringify(response));
-            return
-        });
+        let totalResult = await operation(sql + where, dataArray);
+        total = totalResult.length;
     }
 
-    if(total.length< 1){
-        response= {
+    if(total<1){
+        response = {
             status: true,
-            data: [],
+            data: {
+                list: [],
+                pageSize,
+                page: {
+                    total,
+                    current: pageCurrent,
+                },
+            }
         }
         res.send(JSON.stringify(response));
-        return
+        return;
     }
 
     dataArray = [ ...dataArray,(pageCurrent -1 )* pageSize, pageCurrent * pageSize]
     sql += where + order + limit;
 
-
     const result = operation(sql, dataArray);
     result.then(function(data){
-        response= {
-            ...response,
+        response = {
             status: true,
-            data,
-            pageSize,
-            page:{
-                total,
-                current: pageCurrent,
-            },
+            data: {
+                list: data,
+                pageSize,
+                page: {
+                    total,
+                    current: pageCurrent,
+                },
+            }
         }
         res.send(JSON.stringify(response));
     }).catch(function(err){
