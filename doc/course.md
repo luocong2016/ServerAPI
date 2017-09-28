@@ -6,9 +6,9 @@ name:
 url:
     course/getCourseList
 params:
-    * pageCurrent #当前页码
-    * pageSize #页面显示数据
-    courseName #课程名称
+    * pageCurrent #当前页码[int]
+    * pageSize #页面显示数据条数[int]
+    courseName #课程名称[string]
 return:
     id
     courseCode 课程ID
