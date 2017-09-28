@@ -9,28 +9,61 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const limi_5 = 5;
-const limi_10 = 10;
+const { CURRENT, SIZE, UpperLimit, IntFunc } = require('../constants')
 
+router.post('/getTeacherList', async function(req, res, next) {
+    let response = {status: false}
+    let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course`";
+    let where = '';
+    let order = ' ORDER BY `createtime` DESC'
+    let limit = ' LIMIT ?,?';
+    let total = 0;
 
-router.post('/getTheacherList', function(req, res, next) {
-    let { limitStart = '', limitEnd = ''} = req.body;
-    let limit = ` LIMIT ${limi_10};`;
-    limitStart = parseInt(limitStart);
-    limitEnd = parseInt(limitEnd);
-    if(!isNaN(limitStart)){
-        if(!isNaN(limitEnd) && limitStart < limitEnd){
-            limit = ` LIMIT ${limitStart},${limitEnd};`;
-        }else{
-            limit = ` LIMIT ${limitStart};`;
-        }
+    let dataArray = [];
+    let { pageCurrent, pageSize, courseName = void 0 } = req.body;
+
+    pageCurrent = IntFunc(pageCurrent) || CURRENT;
+    pageSize = IntFunc(pageSize) || SIZE;
+
+    if(courseName != null){
+        where = " WHERE `courseName` LIKE ?";
+        dataArray.push(`%${courseName}%`);
+        let totalResult = await operation(sql + where, dataArray);
+        total = totalResult.length;
     }
-    const response = {status: false}
-    const sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `course` ORDER BY `createtime` DESC" + limit;
-    const result = operation(sql);
+
+    if(total<1){
+        response = {
+            status: true,
+            data: {
+                list: [],
+                pageSize,
+                page: {
+                    total,
+                    current: pageCurrent,
+                },
+            }
+        }
+        res.send(JSON.stringify(response));
+        return;
+    }
+
+    dataArray = [ ...dataArray,(pageCurrent -1 )* pageSize, pageCurrent * pageSize]
+    sql += where + order + limit;
+
+    const result = operation(sql, dataArray);
     result.then(function(data){
-        response.status = true;
-        response.data = data;
+        response = {
+            status: true,
+            data: {
+                list: data,
+                pageSize,
+                page: {
+                    total,
+                    current: pageCurrent,
+                },
+            }
+        }
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
@@ -38,32 +71,27 @@ router.post('/getTheacherList', function(req, res, next) {
     });
 })
 
-router.post('/updateTheacher', function(req, res, next) {
+router.post('/updateTeacher', async function(req, res, next) {
     const response = {status: false}
-    let { courseCode, courseTypeCode='NULL', courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
+    let { courseCode = null, courseTypeCode = null, courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
+    console.log(" courseCode:",courseCode,' courseTypeCode:',courseTypeCode,' courseName:',courseName,' courseSynopsis:',courseSynopsis,' courseDetail:',courseDetail)
     if(!courseCode || courseCode.length !== 32){
+        let select = "SELECT * FROM `course` WHERE `courseCode` = ?;";
         response.message = `courseCode: error`
         res.send(JSON.stringify(response));
         return
     }
-    if(courseTypeCode && courseTypeCode.split('^').length > limi_5){
-        response.message = `courseTypeCode: Not greater than ${limi_5}`
+    if(courseTypeCode && courseTypeCode.split('^').length > UpperLimit){
+        response.message = `courseTypeCode: Not greater than ${UpperLimit}`
         res.send(JSON.stringify(response));
         return
     }
-    if(courseTypeCode == null){
-        courseTypeCode = 'NULL'
-    }
 
-    let sql = "UPDATE `course` SET" +
-        "`courseTypeCode` = '" + courseTypeCode +
-        "',`courseName` = '" + courseName +
-        "',`courseSynopsis` = '" + courseSynopsis +
-        "',`courseDetail` = '" + courseDetail +
-        "' WHERE `courseCode` ='" + courseCode + "';";
+    let sql = "UPDATE `course` SET `courseTypeCode` = ?,`courseName` = ?,`courseSynopsis` = ?,`courseDetail` = ? WHERE `courseCode` =?;";
 
-    const result = operation(sql);
+    const result = operation(sql, [courseTypeCode, courseName, courseSynopsis, courseDetail, courseCode]);
     result.then(function(data){
+        console.log(data)
         response.status = true;
         response.data = 'UPDATE: success';
         res.send(JSON.stringify(response));
@@ -73,23 +101,28 @@ router.post('/updateTheacher', function(req, res, next) {
     });
 })
 
-router.post('/insertTheacher', function(req, res, next){
+router.post('/insertTeacher', function(req, res, next){
     let response = {status:false}
-    let { courseTypeCode, courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
-    if(courseSynopsis == null){
+    let { courseTypeCode, courseName, courseSynopsis, courseDetail } = req.body
+    if(!courseName){
+        response.message = 'courseName: Is not null';
+        res.send(JSON.stringify(response));
+        return
+    }
+
+    if(!courseSynopsis){
         response.message = 'courseSynopsis: Is not null';
         res.send(JSON.stringify(response));
         return
     }
-    if(courseDetail == null){
+    if(!courseDetail){
         response.message = 'courseDetail: Is not null';
         res.send(JSON.stringify(response));
         return
     }
 
-    let sql = 'INSERT INTO `course`(`courseCode`, `courseTypeCode`, `courseName`, `courseSynopsis`, `courseDetail`) VALUES(UUID(),'+
-        `'${courseTypeCode}','${courseName}','${courseSynopsis}','${courseDetail}'` + ');';
-    const result = operation(sql);
+    let sql = "INSERT INTO `course`(`courseCode`, `courseTypeCode`, `courseName`, `courseSynopsis`, `courseDetail`) VALUES(UUID(), ?, ?, ?, ?);"
+    const result = operation(sql, [courseTypeCode, courseName, courseSynopsis, courseDetail]);
     result.then(function(data){
         response.status = true;
         response.data = 'INSERT: success';
@@ -100,19 +133,19 @@ router.post('/insertTheacher', function(req, res, next){
     });
 })
 
-router.post('/deleteTheacher', function(req, res, next){
+router.post('/deleteTeacher', function(req, res, next){
     const response = { status: false}
-    const { courseCode } = req.body;
-    if(!courseCode || courseCode.length !== 32){
-        response.message = 'courseCode: error';
+    const { teacherCode } = req.body;
+    if(!teacherCode || teacherCode.length !== 32){
+        response.message = 'teacherCode: error';
         res.send(JSON.stringify(response));
         return
     }
-    let sql = 'DELETE FROM `course` WHERE `courseCode` = ?';
-    const result = operation(sql,[courseCode]);
+    let sql = 'DELETE FROM `teacher` WHERE `teacherCode` = ?';
+    const result = operation(sql, [teacherCode]);
     result.then(function(data){
         if(data.affectedRows === 0){
-            response.message = 'courseCode: Non-existent';
+            response.message = 'teacherCode: Non-existent';
             res.send(JSON.stringify(response));
             return
         }

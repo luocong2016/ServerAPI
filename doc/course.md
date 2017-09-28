@@ -63,6 +63,8 @@ return:
     data:'Success message'
 ```
 
+### deleteCourse
+```
 name:
     删除课程信息
 url:
