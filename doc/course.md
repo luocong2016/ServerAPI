@@ -62,3 +62,16 @@ return:
     status: true,
     data:'Success message'
 ```
+
+name:
+    删除课程信息
+url:
+    /course/deleteCourse
+mode:
+    POST
+params:
+    * courseCode #课程ID
+return:
+    status: true,
+    data:'Success message'
+```
