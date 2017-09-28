@@ -5,13 +5,15 @@ name:
     获取课程列表
 url:
     course/getCourseList
+mode:
+    POST
 params:
     * pageCurrent #当前页码[int]
     * pageSize #页面显示数据条数[int]
     courseName #课程名称[string]
 return:
     id
-    courseCode 课程ID
+    courseCode #课程ID
     courseTypeCode #课程类别Code
     courseName #课程名称
     courseSynopsis #课程描述
