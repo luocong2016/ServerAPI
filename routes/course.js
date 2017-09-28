@@ -103,21 +103,26 @@ router.post('/updateCourse', async function(req, res, next) {
 
 router.post('/insertCourse', function(req, res, next){
     let response = {status:false}
-    let { courseTypeCode, courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
-    if(courseSynopsis == null){
+    let { courseTypeCode, courseName, courseSynopsis, courseDetail } = req.body
+    if(!courseName){
+        response.message = 'courseName: Is not null';
+        res.send(JSON.stringify(response));
+        return
+    }
+
+    if(!courseSynopsis){
         response.message = 'courseSynopsis: Is not null';
         res.send(JSON.stringify(response));
         return
     }
-    if(courseDetail == null){
+    if(!courseDetail){
         response.message = 'courseDetail: Is not null';
         res.send(JSON.stringify(response));
         return
     }
 
-    let sql = 'INSERT INTO `course`(`courseCode`, `courseTypeCode`, `courseName`, `courseSynopsis`, `courseDetail`) VALUES(UUID(),'+
-        `'${courseTypeCode}','${courseName}','${courseSynopsis}','${courseDetail}'` + ');';
-    const result = operation(sql);
+    let sql = "INSERT INTO `course`(`courseCode`, `courseTypeCode`, `courseName`, `courseSynopsis`, `courseDetail`) VALUES(UUID(), ?, ?, ?, ?);"
+    const result = operation(sql, [courseTypeCode, courseName, courseSynopsis, courseDetail]);
     result.then(function(data){
         response.status = true;
         response.data = 'INSERT: success';
