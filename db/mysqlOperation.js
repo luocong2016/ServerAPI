@@ -25,8 +25,8 @@ const pool = mysql.createPool( store );
  */
 
 const operation = (sql, values = '') => {
-    return new Promise((resolve,reject) => {
-        pool.getConnection((err,connection) => {
+    return new Promise((resolve, reject) => {
+        pool.getConnection((err, connection) => {
             if(err){
                 reject(err);
             }else{

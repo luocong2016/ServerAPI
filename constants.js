@@ -5,6 +5,8 @@
 const CURRENT = 1;
 const SIZE = 10;
 
+const UpperLimit = 5;
+
 
 const IntFunc = (str) => {
     if(isNaN(parseInt(str))){
@@ -18,5 +20,6 @@ const IntFunc = (str) => {
 module.exports = {
     SIZE,
     CURRENT,
+    UpperLimit,
     IntFunc,
 }

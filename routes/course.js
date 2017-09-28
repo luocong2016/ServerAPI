@@ -9,7 +9,7 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE, IntFunc } = require('../constants')
+const { CURRENT, SIZE, UpperLimit, IntFunc } = require('../constants')
 
 router.post('/getCourseList', async function(req, res, next) {
     let response = {status: false}
@@ -20,7 +20,7 @@ router.post('/getCourseList', async function(req, res, next) {
     let total = 0;
 
     let dataArray = [];
-    let { pageCurrent, pageSize, courseName = void 0} = req.body;
+    let { pageCurrent, pageSize, courseName = void 0 } = req.body;
 
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
@@ -71,32 +71,27 @@ router.post('/getCourseList', async function(req, res, next) {
     });
 })
 
-router.post('/updateCourse', function(req, res, next) {
+router.post('/updateCourse', async function(req, res, next) {
     const response = {status: false}
-    let { courseCode, courseTypeCode='NULL', courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
+    let { courseCode = null, courseTypeCode = null, courseName = 'NULL', courseSynopsis = 'NULL', courseDetail = 'NULL' } = req.body
+    console.log(" courseCode:",courseCode,' courseTypeCode:',courseTypeCode,' courseName:',courseName,' courseSynopsis:',courseSynopsis,' courseDetail:',courseDetail)
     if(!courseCode || courseCode.length !== 32){
+        let select = "SELECT * FROM `course` WHERE `courseCode` = ?;";
         response.message = `courseCode: error`
         res.send(JSON.stringify(response));
         return
     }
-    if(courseTypeCode && courseTypeCode.split('^').length > limi_5){
-        response.message = `courseTypeCode: Not greater than ${limi_5}`
+    if(courseTypeCode && courseTypeCode.split('^').length > UpperLimit){
+        response.message = `courseTypeCode: Not greater than ${UpperLimit}`
         res.send(JSON.stringify(response));
         return
     }
-    if(courseTypeCode == null){
-        courseTypeCode = 'NULL'
-    }
 
-    let sql = "UPDATE `course` SET" +
-        "`courseTypeCode` = '" + courseTypeCode +
-        "',`courseName` = '" + courseName +
-        "',`courseSynopsis` = '" + courseSynopsis +
-        "',`courseDetail` = '" + courseDetail +
-        "' WHERE `courseCode` ='" + courseCode + "';";
+    let sql = "UPDATE `course` SET `courseTypeCode` = ?,`courseName` = ?,`courseSynopsis` = ?,`courseDetail` = ? WHERE `courseCode` =?;";
 
-    const result = operation(sql);
+    const result = operation(sql, [courseTypeCode, courseName, courseSynopsis, courseDetail, courseCode]);
     result.then(function(data){
+        console.log(data)
         response.status = true;
         response.data = 'UPDATE: success';
         res.send(JSON.stringify(response));
