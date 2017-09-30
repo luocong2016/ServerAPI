@@ -1,11 +1,11 @@
-## tearch
+## teacher
 
-### getTearchList
+### getTeacherList
 ```
 name:
     获取教师信息列表
 url:
-    /course/getTearchList
+    /teacher/getTeacherList
 mode:
     POST
 params:
