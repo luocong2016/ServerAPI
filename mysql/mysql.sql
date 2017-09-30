@@ -51,7 +51,8 @@ DROP TABLE IF EXISTS `courseType`;
 CREATE TABLE `courseType`( #课程类别表
     `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `courseTypeCode` VARCHAR(32) NOT NULL UNIQUE,
-    `courseTypeName` VARCHAR(50) DEFAULT NULL #课程类别名称
+    `courseTypeName` VARCHAR(50) DEFAULT NULL, #课程类别名称
+    `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `courseType` (`courseTypeCode`, `courseTypeName`) VALUES ('147694fb-a05c-11e7-aa02-c0ea56ec', '少年编程'),
