@@ -9,8 +9,8 @@ url:
 mode:
     POST
 params:
-    * pageCurrent #当前页码[int]
-    * pageSize #页面显示数据条数[int]
+    * pageCurrent #当前页码[int] <default: 1>
+    * pageSize #页面显示数据条数[int] <default: 10>
     courseName #课程名称[string]
 return:
     status: true
@@ -36,7 +36,7 @@ mode:
     POST
 params:
     * courseCode #课程ID
-    courseTypeCode #课程类型编码 [string] | 多选"^" 分开且小于5
+    courseTypeCode #课程类型编码 [string] | 多选"^" 分开且小于等于5
     courseName #课程名称 [string]
     courseSynopsis #课程简介 [string]
     courseDetail #课程详情 [string]

@@ -64,7 +64,7 @@ CREATE TABLE `teacher`( #教师信息表
     `teacherName` VARCHAR(24) DEFAULT NULL, #教师姓名
     `teacherSynopsis` TINYTEXT DEFAULT NULL, #教师简介
     `teacherPicture` VARCHAR(500) DEFAULT NULL, ##照片图片路径
-    `cellPhone` VARCHAR(16) DEFAULT NULL, #联系电话
+    `cellPhone` VARCHAR(20) DEFAULT NULL, #联系电话
     `courseTypeCode` VARCHAR(200) DEFAULT NULL, #教授课程(多选：code1^code2^...codeN)
     `weight` int(12) DEFAULT NULL, #权重(用于排名)
     `createtime` datetime DEFAULT CURRENT_TIMESTAMP, #创建时间
