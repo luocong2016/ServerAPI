@@ -104,7 +104,7 @@ CREATE TABLE `news`( #新闻动态信息表
     `newsTitle` VARCHAR(24) DEFAULT NULL, #新闻标题
     `newsSynopsis` TINYTEXT DEFAULT NULL, #新闻简介
     `newsDetail` TEXT DEFAULT NULL, #新闻详情
-    `newsPicture` VARCHAR(500) DEFAULT NULL, ##新闻图片路径
+    `newsPicture` VARCHAR(500) DEFAULT NULL, ##新闻缩略图路径
     `createtime` datetime DEFAULT CURRENT_TIMESTAMP, #创建时间
     `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, #修改时间
     `validCode` int(12) DEFAULT 0 #有效标志（0: 有效）

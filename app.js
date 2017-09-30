@@ -10,9 +10,10 @@ var FileStore = require('session-file-store')(session);
 /* 接口地址 */
 var index = require('./routes/index');
 var users = require('./routes/users');
-var picture = require('./routes/picture');  /* 获取图片 */
-var course = require('./routes/course');    /* 获取课程信息 */
-var teacher = require('./routes/teacher');  /* 获取教师信息 */
+var picture = require('./routes/picture');  /* 图片 */
+var course = require('./routes/course');    /* 课程信息 */
+var teacher = require('./routes/teacher');  /* 教师信息 */
+var news = require('./routes/news');        /* 新闻动态信息 */
 
 var app = express();
 
@@ -44,7 +45,6 @@ app.all('*', function(req, res, next){
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild");
     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
@@ -52,7 +52,8 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/picture', picture);
 app.use('/course', course);
-app.use('/teacher', teacher)
+app.use('/teacher', teacher);
+app.use('/news', news);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
