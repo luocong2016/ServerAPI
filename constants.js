@@ -21,6 +21,18 @@ const IntFunc = (str) => {
     return false
 }
 
+/*
+    param:<string|number|boolean>
+        str
+    return:<boolean>
+*/
+const BoolFunc = (str) => {
+    if(str != null && str != ''){
+        return str
+    }
+    return false
+}
+
 
 module.exports = {
     SIZE,
@@ -28,4 +40,5 @@ module.exports = {
     UpperLimit,
     UUID_MAX,
     IntFunc,
+    BoolFunc,
 }

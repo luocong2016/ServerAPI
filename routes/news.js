@@ -9,7 +9,7 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc } = require('../constants')
+const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc } = require('../constants')
 
 router.post('/getNesList', async function(req, res, next) {
     let response = { status: false }
@@ -19,17 +19,17 @@ router.post('/getNesList', async function(req, res, next) {
     let limit = " LIMIT ?,?";
     let dataArray = [];
 
-    let { pageCurrent, pageSize, newsTitle, newsSynopsis, validCode = '*' } = req.body;
+    let { pageCurrent, pageSize, newsTitle = void 0, newsSynopsis, validCode = '*' } = req.body;
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
 
     console.log('pageSize:',pageSize, ',pageCurrent:',pageCurrent, ',newsTitle:',newsTitle, ',newsSynopsis:', newsSynopsis, ',valiCode:',validCode)
 
     if(validCode !== '*' && !isNaN(parseInt(validCode))){
-       if(newsTitle != null){
+       if(BoolFunc(newsTitle)){
            where = " WHERE `validCode` = ? AND `newsTitle` LIKE ?"
            dataArray.push(validCode, `%${newsTitle}%`)
-       }else if(newsSynopsis != null){
+       }else if(BoolFunc(newsSynopsis)){
            where = " WHERE `validCode` = ? AND `newsSynopsis` LIKE ?"
            dataArray.push(validCode, `%${newsSynopsis}%`)
        }else{
@@ -37,10 +37,10 @@ router.post('/getNesList', async function(req, res, next) {
            dataArray.push(validCode)
        }
     }else {
-        if(newsTitle != null){
+        if(BoolFunc(newsTitle)){
             where = " WHERE `newsTitle` LIKE ?"
             dataArray.push(`%${newsTitle}%`)
-        }else if(newsSynopsis != null){
+        }else if(BoolFunc(newsSynopsis)){
             where = " WHERE `newsSynopsis` LIKE ?"
             dataArray.push(`%${newsSynopsis}%`)
         }
@@ -139,20 +139,37 @@ router.post('/updateNesList', async function(req, res, next) {
 
 router.post('/insertNes', function(req, res, next){
     let response = { status: false }
+    let lock = {
+        newsCode: false,
+        newsTitle: true,
+        newsSynopsis: true,
+        newsDetail: true,
+        newsPicture: true,
+        validCode: false,
+    }
+    /* Object.keys(lock) */
+
     let {
-        teacherCode,
-        teacherName,
-        teacherSynopsis,
-        teacherPicture,
-        cellPhone,
-        courseTypeCode,
-        weight,
-        schoolCode,
+        newsCode,
+        newsTitle,
+        newsSynopsis,
+        newsDetail,
+        newsPicture,
         validCode = 0
     } = req.body
 
-    if(teacherName == null){
-        response.message = 'teacherSynopsis: Is not null';
+    Object.keys(lock).map(item => {
+        console.log('item',BoolFunc(item))
+        if(!BoolFunc(req.body[item]) && lock[item]){
+            response.message = `${item}: Is not null`;
+            res.send(JSON.stringify(response));
+            return
+        }
+    })
+    console.log(1)
+
+    if(BoolFunc(newsTitle)){
+        response.message = 'newsTitle: Is not null';
         res.send(JSON.stringify(response));
         return
     }
@@ -183,18 +200,18 @@ router.post('/insertNes', function(req, res, next){
 
 router.post('/deleteNes', function(req, res, next){
     const response = { status: false}
-    const { teacherCode } = req.body;
+    const { newsCode } = req.body;
 
-    if(!teacherCode || teacherCode.length !== UUID_MAX){
-        response.message = 'teacherCode: error';
+    if(!newsCode || newsCode.length !== UUID_MAX){
+        response.message = 'newsCode: error';
         res.send(JSON.stringify(response));
         return
     }
-    let sql = 'DELETE FROM `teacher` WHERE `teacherCode` = ?';
-    const result = operation(sql, [teacherCode]);
+    let sql = 'DELETE FROM `news` WHERE `newsCode` = ?';
+    const result = operation(sql, [newsCode]);
     result.then(function(data){
         if(data.affectedRows === 0){
-            response.message = 'teacherCode: Non-existent';
+            response.message = 'newsCode: Non-existent';
             res.send(JSON.stringify(response));
             return
         }
