@@ -9,58 +9,35 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc } = require('../constants')
+const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc, ListTemp, message } = require('../constants')
 
-router.post('/getNewsList', async function(req, res, next) {
+router.post('/getSchoolList', async function(req, res, next) {
     let response = { status: false }
-    let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `news`";
+    let sql = "SELECT * FROM `school`";
     let where = "";
-    let order = " ORDER BY `createtime` DESC";
+    let order = " ORDER BY `region_id` DESC";
     let limit = " LIMIT ?,?";
     let dataArray = [];
 
-    let { pageCurrent, pageSize, newsTitle = void 0, newsSynopsis, validCode = '*' } = req.body;
+    let { pageCurrent, pageSize, schoolName, schoolCode} = req.body;
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
 
-    console.log('pageSize:',pageSize, ',pageCurrent:',pageCurrent, ',newsTitle:',newsTitle, ',newsSynopsis:', newsSynopsis, ',valiCode:',validCode)
+    console.log('pageSize:',pageSize, ',pageCurrent:',pageCurrent, ',schoolName:',schoolName, ',schoolCode:', schoolCode)
 
-    if(validCode !== '*' && !isNaN(parseInt(validCode))){
-       if(BoolFunc(newsTitle)){
-           where = " WHERE `validCode` = ? AND `newsTitle` LIKE ?"
-           dataArray.push(validCode, `%${newsTitle}%`)
-       }else if(BoolFunc(newsSynopsis)){
-           where = " WHERE `validCode` = ? AND `newsSynopsis` LIKE ?"
-           dataArray.push(validCode, `%${newsSynopsis}%`)
-       }else{
-           where = " WHERE `validCode` = ?"
-           dataArray.push(validCode)
-       }
-    }else {
-        if(BoolFunc(newsTitle)){
-            where = " WHERE `newsTitle` LIKE ?"
-            dataArray.push(`%${newsTitle}%`)
-        }else if(BoolFunc(newsSynopsis)){
-            where = " WHERE `newsSynopsis` LIKE ?"
-            dataArray.push(`%${newsSynopsis}%`)
-        }
-    }
+   if(BoolFunc(schoolCode)){
+       where = " WHERE `schoolCode` = ?"
+       dataArray.push(validCode, `%${schoolCode}%`)
+   }else if(BoolFunc(schoolName)){
+       where = " WHERE `schoolName` LIKE ?"
+       dataArray.push(validCode, `%${newsSynopsis}%`)
+   }
 
     console.log('SQL:',sql + where + order + limit)
 
     const result = operation(sql + where + order + limit, [...dataArray, (pageCurrent -1 )* pageSize, pageCurrent * pageSize ]);
     result.then(function(data){
-        response = {
-            status: true,
-            data: {
-                list: data,
-                pageSize,
-                page: {
-                    total: data.length,
-                    current: pageCurrent,
-                },
-            }
-        }
+        response = ListTemp(data, pageSize, pageCurrent)
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
@@ -68,35 +45,54 @@ router.post('/getNewsList', async function(req, res, next) {
     });
 })
 
-router.post('/updateNews', async function(req, res, next) {
+router.post('/updateSchool', async function(req, res, next) {
     const response = {status: false}
+
+    let lock = {
+        schoolCode: true,
+        schoolName: true,
+        schoolSynopsis: true,
+        schooladdress: true,
+        schoolPicture: false, //production: true
+        province_id: false,
+        city_id: false,
+        region_id: false,
+        Telephone:false
+    }
+
     let {
-        teacherCode,
-        teacherName,
-        teacherSynopsis,
-        teacherPicture,
-        cellPhone,
-        courseTypeCode,
-        weight,
         schoolCode,
-        validCode = 0
+        schoolName,
+        schoolSynopsis,
+        schooladdress,
+        schoolPicture,
+        province_id,
+        city_id,
+        region_id,
+        Telephone
     } = req.body
 
-    if(!teacherCode || teacherCode.length !== UUID_MAX){
-        response.message = `teacherCode: error`
+    Object.keys(lock).map(item => {
+        if(!BoolFunc(req.body[item]) && lock[item]){
+            response.message = message.notNull + `${item}`;
+            res.send(JSON.stringify(response));
+            return
+        }
+    })
+
+    console.log(1)
+
+    return
+
+    if(schoolCode.length !== UUID_MAX){
+        response.message = message.fail + `schoolCode`
         res.send(JSON.stringify(response));
         return
     }
 
-    if(courseTypeCode && courseTypeCode.split('^').length > UpperLimit){
-        response.message = `courseTypeCode: Not greater than ${UpperLimit}`
-        res.send(JSON.stringify(response));
-        return
-    }
-
-    let select = "SELECT * FROM `teacher` WHERE `teacherCode` = ?;";
+    let select = "SELECT * FROM `school` WHERE `schoolCode` = ?;";
     let total = 0;
-    let selectResult = await operation(select, [teacherCode])
+    let selectResult = await operation(select, [schoolCode])
     try{
         total = selectResult.length
     }catch(err) {
@@ -104,23 +100,12 @@ router.post('/updateNews', async function(req, res, next) {
     }
 
     if(total == 0){
-        response.message = `teacherCode: Non-existent`
+        response.message = message.nonentity + `schoolCode`
         res.send(JSON.stringify(response));
         return;
     }
 
-    if(teacherName == null){
-        response.message = `teacherName: IS NOT NULL`
-        res.send(JSON.stringify(response));
-        return
-    }
-
-    if(teacherSynopsis == null){
-        response.message = `teacherSynopsis: IS NOT NULL`
-        res.send(JSON.stringify(response));
-        return
-    }
-
+    return
     let sql = "UPDATE `teacher` SET `teacherName` = ?, `teacherSynopsis` = ?, `teacherPicture` = ?, `cellPhone` = ?, `courseTypeCode` = ?, `weight` = ?, `schoolCode` = ?, `validCode` = ? WHERE `teacherCode` = ?;"
     let dataArray = [teacherName, teacherSynopsis, teacherPicture, cellPhone, courseTypeCode, weight, schoolCode, validCode, teacherCode]
     console.log("sql:",sql,"data", dataArray)
@@ -137,7 +122,7 @@ router.post('/updateNews', async function(req, res, next) {
     });
 })
 
-router.post('/insertNews', function(req, res, next){
+router.post('/insertSchool', function(req, res, next){
     let response = { status: false }
     let lock = {
         newsCode: false,
@@ -147,7 +132,6 @@ router.post('/insertNews', function(req, res, next){
         newsPicture: false, //production => true
         validCode: false,
     }
-
     let {
         newsCode,
         newsTitle,
@@ -179,7 +163,7 @@ router.post('/insertNews', function(req, res, next){
     });
 })
 
-router.post('/deleteNews', function(req, res, next){
+router.post('/deleteSchool', function(req, res, next){
     const response = { status: false}
     const { newsCode } = req.body;
 

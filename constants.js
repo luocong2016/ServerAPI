@@ -2,12 +2,16 @@
  * Created by Lutz on 2017/9/20.
  */
 
+
+/* constants */
 const CURRENT = 1;
 const SIZE = 10;
 
 const UpperLimit = 5;
 const UUID_MAX = 32;
 
+
+/* function */
 /*
     param: <string|number>
         => parseInt(<number>)
@@ -34,11 +38,40 @@ const BoolFunc = (str) => {
 }
 
 
+/* modules */
+const ListTemp = (data = [], pageSize = SIZE, pageCurrent = CURRENT, status = true,) => {
+    return {
+        status: true,
+        data: {
+            list: data,
+            pageSize,
+            page: {
+                total: data.length,
+                current: pageCurrent,
+            },
+        }
+    }
+}
+
+/* message */
+const message = {
+    nonentity: 'Nonentity. ', // 不存在
+    notNull: 'Not null. ',    // 不能为空
+    unknownError: 'Unknown Error. ', //未知错误
+    successful: 'Successful operation. ', //操作成功
+    fail: 'Failed operation. ' //操作失败
+}
+
 module.exports = {
     SIZE,
     CURRENT,
     UpperLimit,
     UUID_MAX,
+
     IntFunc,
     BoolFunc,
+
+    ListTemp,
+
+    message,
 }
