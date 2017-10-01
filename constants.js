@@ -55,11 +55,11 @@ const ListTemp = (data = [], pageSize = SIZE, pageCurrent = CURRENT, status = tr
 
 /* message */
 const message = {
-    nonentity: 'Nonentity. ', // 不存在
-    notNull: 'Not null. ',    // 不能为空
-    unknownError: 'Unknown Error. ', //未知错误
-    successful: 'Successful operation. ', //操作成功
-    fail: 'Failed operation. ' //操作失败
+    nonentity: 'Nonentity: ', // 不存在
+    notNull: 'Not null: ',    // 不能为空
+    unknownError: 'Unknown Error.', //未知错误
+    successful: 'Successful operation.', //操作成功
+    fail: 'Failed operation.' //操作失败
 }
 
 module.exports = {

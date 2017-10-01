@@ -8,7 +8,6 @@ const express = require('express');
 const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
-
 const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc, ListTemp, message } = require('../constants')
 
 router.post('/getSchoolList', async function(req, res, next) {
@@ -47,7 +46,6 @@ router.post('/getSchoolList', async function(req, res, next) {
 
 router.post('/updateSchool', async function(req, res, next) {
     const response = {status: false}
-
     let lock = {
         schoolCode: true,
         schoolName: true,
@@ -57,7 +55,7 @@ router.post('/updateSchool', async function(req, res, next) {
         province_id: false,
         city_id: false,
         region_id: false,
-        Telephone:false
+        Telephone:true
     }
 
     let {
@@ -80,10 +78,6 @@ router.post('/updateSchool', async function(req, res, next) {
         }
     })
 
-    console.log(1)
-
-    return
-
     if(schoolCode.length !== UUID_MAX){
         response.message = message.fail + `schoolCode`
         res.send(JSON.stringify(response));
@@ -105,10 +99,9 @@ router.post('/updateSchool', async function(req, res, next) {
         return;
     }
 
-    return
-    let sql = "UPDATE `teacher` SET `teacherName` = ?, `teacherSynopsis` = ?, `teacherPicture` = ?, `cellPhone` = ?, `courseTypeCode` = ?, `weight` = ?, `schoolCode` = ?, `validCode` = ? WHERE `teacherCode` = ?;"
-    let dataArray = [teacherName, teacherSynopsis, teacherPicture, cellPhone, courseTypeCode, weight, schoolCode, validCode, teacherCode]
-    console.log("sql:",sql,"data", dataArray)
+    let sql = "UPDATE `school` SET `schoolName` = ?, `schoolSynopsis` = ?, `schooladdress` = ?, `schoolPicture` = ?, `province_id` = ?, `city_id` = ?, `region_id` = ?, `Telephone` = ? WHERE `schoolCode` = ?;"
+    let dataArray = [schoolName,schoolSynopsis,schooladdress,schoolPicture,province_id,city_id,region_id,Telephone,schoolCode]
+    console.log("sql:",sql,"data\n", dataArray)
 
     const result = operation(sql, dataArray);
 
@@ -125,37 +118,43 @@ router.post('/updateSchool', async function(req, res, next) {
 router.post('/insertSchool', function(req, res, next){
     let response = { status: false }
     let lock = {
-        newsCode: false,
-        newsTitle: true,
-        newsSynopsis: true,
-        newsDetail: true,
-        newsPicture: false, //production => true
-        validCode: false,
+        schoolName: true,
+        schoolSynopsis: true,
+        schooladdress: true,
+        schoolPicture: false, //production: true
+        province_id: false,
+        city_id: false,
+        region_id: false,
+        Telephone:true
     }
+
     let {
-        newsCode,
-        newsTitle,
-        newsSynopsis,
-        newsDetail,
-        newsPicture,
-        validCode = 0
+        schoolCode,
+        schoolName,
+        schoolSynopsis,
+        schooladdress,
+        schoolPicture,
+        province_id,
+        city_id,
+        region_id,
+        Telephone
     } = req.body
 
     Object.keys(lock).map(item => {
         if(!BoolFunc(req.body[item]) && lock[item]){
-            response.message = `${item}: Is not null`;
+            response.message = message.notNull + `${item}`;
             res.send(JSON.stringify(response));
             return
         }
     })
 
-    let sql = "INSERT INTO `news`(`newsCode`, `newsTitle`, `newsSynopsis`, `newsDetail`, `newsPicture`, `validCode`) VALUES(UUID(), ?, ?, ?, ?, ?);"
-    let dataArrary = [newsTitle, newsSynopsis, newsDetail, newsPicture, validCode];
+    let sql = "INSERT INTO `school`(`schoolCode`, `schoolName`, `schoolSynopsis`, `schooladdress`, `schoolPicture`, `province_id`, `city_id`, `region_id`, `Telephone`) VALUES(UUID(), ?, ?, ?, ?, ?, ?, ?, ?);"
+    let dataArrary = [schoolName,schoolSynopsis,schooladdress,schoolPicture,province_id,city_id,region_id,Telephone];
     console.log(sql)
     const result = operation(sql, dataArrary);
     result.then(function(data){
         response.status = true;
-        response.data = 'INSERT: success';
+        response.data = message.successful;
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
@@ -165,23 +164,23 @@ router.post('/insertSchool', function(req, res, next){
 
 router.post('/deleteSchool', function(req, res, next){
     const response = { status: false}
-    const { newsCode } = req.body;
+    const { schoolCode } = req.body;
 
-    if(!newsCode || newsCode.length !== UUID_MAX){
-        response.message = 'newsCode: error';
+    if(!schoolCode || schoolCode.length !== UUID_MAX){
+        response.message = message.fail + 'schoolCode';
         res.send(JSON.stringify(response));
         return
     }
-    let sql = 'DELETE FROM `news` WHERE `newsCode` = ?';
-    const result = operation(sql, [newsCode]);
+    let sql = 'DELETE FROM `school` WHERE `schoolCode` = ?';
+    const result = operation(sql, [schoolCode]);
     result.then(function(data){
         if(data.affectedRows === 0){
-            response.message = 'newsCode: Non-existent';
+            response.message = message.nonentity + 'schoolCode';
             res.send(JSON.stringify(response));
             return
         }
         response.status = true;
-        response.data = 'DELETE: success';
+        response.data = message.successful;
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;

@@ -85,9 +85,9 @@ CREATE TABLE `school`( #校区信息表
     `schoolSynopsis` TINYTEXT DEFAULT NULL, #校区简介
     `schooladdress` VARCHAR(50) DEFAULT NULL, #校区具体地址
     `schoolPicture` VARCHAR(500) DEFAULT NULL, #校区图片路径
-    `province_id` VARCHAR(20) DEFAULT NULL, #省
-    `city_id` INT(10) DEFAULT NULL,#市
-    `region_id` INT(10) DEFAULT NULL, #区/县
+    `province_id` VARCHAR(50) DEFAULT NULL, #省
+    `city_id` VARCHAR(50) DEFAULT NULL,#市
+    `region_id` VARCHAR(50) DEFAULT NULL, #区/县
     `Telephone` VARCHAR(16) DEFAULT NULL #联系电话
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
