@@ -15,6 +15,7 @@ var course = require('./routes/course');    /* 课程信息 */
 var teacher = require('./routes/teacher');  /* 教师信息 */
 var news = require('./routes/news');        /* 新闻动态信息 */
 var school = require('./routes/school');     /* 学校信息 */
+var courseType = require('./routes/courseType');    /* 课程类别信息 */
 
 var app = express();
 
@@ -55,6 +56,7 @@ app.use('/course', course);
 app.use('/teacher', teacher);
 app.use('/news', news);
 app.use('/school', school);
+app.use('/courseType', courseType)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
