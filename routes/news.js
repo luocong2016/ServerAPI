@@ -9,7 +9,7 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc } = require('../constants')
+const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc, message } = require('../constants')
 
 router.post('/getNewsList', async function(req, res, next) {
     let response = { status: false }
@@ -47,6 +47,10 @@ router.post('/getNewsList', async function(req, res, next) {
     }
 
     console.log('SQL:',sql + where + order + limit)
+    console.log('dataArray:', dataArray)
+
+    const total = (await operation(sql + where + order, dataArray)).length;
+    console.log("total", total.length)
 
     const result = operation(sql + where + order + limit, [...dataArray, (pageCurrent -1 )* pageSize, pageCurrent * pageSize ]);
     result.then(function(data){
@@ -56,7 +60,7 @@ router.post('/getNewsList', async function(req, res, next) {
                 list: data,
                 pageSize,
                 page: {
-                    total: data.length,
+                    total,
                     current: pageCurrent,
                 },
             }
@@ -203,6 +207,20 @@ router.post('/deleteNews', function(req, res, next){
         response.message = err;
         res.send(JSON.stringify(response));
     });
+})
+
+router.post('/getNewsCode', async function(req, res, next){
+    let response = { status: false }
+    const { newsCode } = req.body
+    if(!BoolFunc(newsCode)){
+        response.message = message.notNull + 'newsCode';
+        res.send(JSON.stringify(response));
+        return
+    }
+    let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `news`";
+    let where = "WHERE `newsCode` = ?";
+    response.data = await operation(sql + where, [newsCode])
+    res.send(JSON.stringify(response));
 })
 
 module.exports = router;
