@@ -82,7 +82,7 @@ app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function(req, res
     // 客户端发起其它请求
     else {
         res.setHeader('Content-Type', 'application/json');
-        res.redirect('/ueditor/ueditor.config.json')
+        res.redirect('/ueditor/nodejs/config.json')
     }
 }));
 
