@@ -210,8 +210,9 @@ router.post('/deleteNews', function(req, res, next){
 })
 
 router.post('/getNewsCode', async function(req, res, next){
-    let response = { status: false }
+    let response = { status: false }, temp = [];
     const { newsCode } = req.body
+    console.log(req.body, newsCode)
     if(!BoolFunc(newsCode)){
         response.message = message.notNull + 'newsCode';
         res.send(JSON.stringify(response));
@@ -219,7 +220,14 @@ router.post('/getNewsCode', async function(req, res, next){
     }
     let sql = "SELECT *,DATE_FORMAT(createtime,'%Y-%m-%d %k:%i:%s') AS `createtime`,DATE_FORMAT(updatetime,'%Y-%m-%d %k:%i:%s') AS `updatetime` FROM `news`";
     let where = "WHERE `newsCode` = ?";
-    response.data = await operation(sql + where, [newsCode])
+    try {
+        temp = await operation(sql + where, [newsCode]);
+    }catch (e){
+        temp = [];
+    }
+    console.log(temp)
+    response.status = true;
+    response.data = temp[0]
     res.send(JSON.stringify(response));
 })
 

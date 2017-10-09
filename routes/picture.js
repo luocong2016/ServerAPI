@@ -44,28 +44,27 @@ const deletePic = (filename) => {
 /* 上传一张图片 */
 router.post('/putPicture', function (req, res, next){
     const response = {status:false}; //输出数据
-
     const form = new formidable.IncomingForm(); //创建上传表单
     form.encoding = 'utf-8'; //设置编码格式
     form.uploadDir = 'public' + PICTURE_UPLOAD; //设置上传目录
     form.keepExtensions = true; //保留后缀
     form.parse(req, function (err, fields, files) {
-
+        const file = files.file || files.upload || {}
         if(err){
             response.message = '上传过程错误，请重新上传'
             res.send(JSON.stringify(response));
             return
         }
 
-        if(files.upload.size > PICTURE_MAX_SIZE){
+        if(file.size > PICTURE_MAX_SIZE){
             response.message = `图片最大不得超过:${PICTURE_MAX_SIZE/1024}KB`;
             res.send(JSON.stringify(response));
-            deletePic(files.upload.path)
+            deletePic(file.path)
             return
         }
 
         let extName = ''; //后缀名
-        switch (files.upload.type){
+        switch (file.type){
             case 'image/pjpeg':
                 extName = 'jpg';
                 break;
@@ -78,19 +77,23 @@ router.post('/putPicture', function (req, res, next){
             case 'image/x-png':
                 extName = 'png';
                 break;
+            case 'image/gif':
+                extName = 'gif';
+                break;
         }
 
         if(extName.length === 0){
-            response.message = '只支持png和jpg格式的图片';
+            response.message = '只支持png/jpg/gif格式的图片';
             res.send(JSON.stringify(response));
-            deletePic(files.upload.path);
+            deletePic(file.path);
             return
         }
 
         let avatarName  = `${new Date().toLocaleDateString()}_${Math.random().toString(16).substr(2)}.${extName}`; //图片写入地址
         let picturePath = form.uploadDir + avatarName;
 
-        fs.renameSync(files.upload.path, picturePath);
+        //同步重命名文件名
+        fs.renameSync(file.path, picturePath);
 
         response.status = true;
         response.data = '/' + picturePath;
