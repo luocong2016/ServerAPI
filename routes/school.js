@@ -17,8 +17,9 @@ router.post('/getSchoolList', async function(req, res, next) {
     let order = " ORDER BY `region_id` DESC";
     let limit = " LIMIT ?,?";
     let dataArray = [];
+    let total = 0;
 
-    let { pageCurrent, pageSize, schoolName, schoolCode} = req.body;
+    let { pageCurrent, pageSize, schoolName, schoolCode, validCode = 0 } = req.body;
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
 
@@ -26,17 +27,32 @@ router.post('/getSchoolList', async function(req, res, next) {
 
    if(BoolFunc(schoolCode)){
        where = " WHERE `schoolCode` = ?"
-       dataArray.push(validCode, `%${schoolCode}%`)
+       dataArray.push(schoolCode)
    }else if(BoolFunc(schoolName)){
        where = " WHERE `schoolName` LIKE ?"
-       dataArray.push(validCode, `%${newsSynopsis}%`)
+       dataArray.push(`%${schoolName}%`)
    }
+   try{
+       let selectResult = await operation(sql + where + order, dataArray )
+       console.log(sql+ where+ order)
+       console.log("selectResult:", selectResult, 'dataArray:', dataArray)
+       total = selectResult.length
+   }catch (e){
+       response.message = err
+   }
+
+    if(total == 0){
+        response = ListTemp([], pageSize, pageCurrent, total)
+        res.send(JSON.stringify(response));
+        return;
+    }
+
 
     console.log('SQL:',sql + where + order + limit)
 
     const result = operation(sql + where + order + limit, [...dataArray, (pageCurrent -1 )* pageSize, pageCurrent * pageSize ]);
     result.then(function(data){
-        response = ListTemp(data, pageSize, pageCurrent)
+        response = ListTemp(data, pageSize, pageCurrent, total)
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
@@ -163,6 +179,7 @@ router.post('/insertSchool', function(req, res, next){
 })
 
 router.post('/deleteSchool', function(req, res, next){
+    console.log('deleteSchool')
     const response = { status: false}
     const { schoolCode } = req.body;
 
@@ -186,6 +203,30 @@ router.post('/deleteSchool', function(req, res, next){
         response.message = err;
         res.send(JSON.stringify(response));
     });
+})
+
+router.post('/getSchoolCode', async function(req, res, next){
+    let response = { status: false }, temp = [];
+    const { schoolCode } = req.body
+    console.log(req.body, schoolCode)
+    if(!BoolFunc(schoolCode)){
+        response.message = message.notNull + 'schoolCode';
+        res.send(JSON.stringify(response));
+        return
+    }
+    let sql = "SELECT * FROM `school`";
+    let where = "WHERE `schoolCode` = ?";
+
+    console.log("sql:",sql + where,'arr',[schoolCode])
+    try {
+        temp = await operation(sql + where, [schoolCode]);
+    }catch (e){
+        temp = [];
+    }
+    console.log(temp)
+    response.status = true;
+    response.data = temp[0]
+    res.send(JSON.stringify(response));
 })
 
 module.exports = router;

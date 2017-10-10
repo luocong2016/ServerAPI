@@ -39,16 +39,14 @@ const BoolFunc = (str) => {
 
 
 /* modules */
-const ListTemp = (data = [], pageSize = SIZE, pageCurrent = CURRENT, status = true,) => {
+const ListTemp = (data = [], pageSize = SIZE, pageCurrent = CURRENT, total = 0, status = true) => {
     return {
         status: true,
         data: {
             list: data,
             pageSize,
-            page: {
-                total: data.length,
-                current: pageCurrent,
-            },
+            total,
+            current: pageCurrent,
         }
     }
 }

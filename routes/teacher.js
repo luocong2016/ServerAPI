@@ -9,7 +9,7 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc } = require('../constants')
+const { CURRENT, SIZE, UpperLimit, UUID_MAX, IntFunc, BoolFunc, ListTemp } = require('../constants')
 
 router.post('/getTeacherList', async function(req, res, next) {
     let response = { status: false }
@@ -17,44 +17,41 @@ router.post('/getTeacherList', async function(req, res, next) {
     let where = "";
     let order = " ORDER BY `weight` DESC";
     let limit = " LIMIT ?,?";
+    let total = 0;
     let dataArray = [];
 
-    let { pageCurrent, pageSize, teacherName = void 0, validCode = '*' } = req.body;
+    let { pageCurrent, pageSize, teacherName, courseTypeCode } = req.body;
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
 
     console.log('pageSize:',pageSize, ',pageCurrent',pageCurrent, ',teacherName',teacherName, ',valiCode',validCode)
 
-    if(validCode !== '*' && !isNaN(parseInt(validCode))){
-       if(teacherName != null){
-           where = " WHERE `validCode` = ? AND `teacherName` LIKE ?"
-           dataArray.push(validCode, `%${teacherName}%`)
-       }else{
-           where = " WHERE `validCode` = ?"
-           dataArray.push(validCode)
-       }
-    }else {
-        if(teacherName != null){
-            where = " WHERE `teacherName` LIKE ?"
-            dataArray.push(`%${teacherName}%`)
-        }
+    if(BoolFunc(teacherName)){
+        where = " WHERE `teacherName` LIKE ?"
+        dataArray.push(`%${teacherName}%`)
+    } else if(BoolFunc(courseTypeCode)) {
+        where = " WHERE `courseTypeCode` LIKE ?"
+        dataArray.push(`%${courseTypeCode}%`)
     }
 
     console.log('SQL:',sql + where + order + limit)
 
+    try{
+        let selectResult = await operation(sql + where + order, [teacherCode])
+        total = selectResult.length
+    }catch(err) {
+        response.message = err
+    }
+
+    if(total == 0){
+        response.message = `teacherCode: Non-existent`
+        res.send(JSON.stringify(response));
+        return;
+    }
+
     const result = operation(sql + where + order + limit, [...dataArray, (pageCurrent -1 )* pageSize, pageCurrent * pageSize ]);
     result.then(function(data){
-        response = {
-            status: true,
-            data: {
-                list: data,
-                pageSize,
-                page: {
-                    total: data.length,
-                    current: pageCurrent,
-                },
-            }
-        }
+        response = ListTemp(data, pageSize, pageCurrent, total);
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
@@ -199,6 +196,28 @@ router.post('/deleteTeacher', function(req, res, next){
         response.message = err;
         res.send(JSON.stringify(response));
     });
+})
+
+router.post('/getTeacherCode', async function(req, res, next){
+    let response = { status: false }, temp = [];
+    const { teacherCode } = req.body
+    console.log(req.body, teacherCode)
+    if(!BoolFunc(teacherCode)){
+        response.message = message.notNull + 'teacherCode';
+        res.send(JSON.stringify(response));
+        return
+    }
+    let sql = "SELECT * FROM `teacher`";
+    let where = "WHERE `teacherCode` = ?";
+    try {
+        temp = await operation(sql + where, [teacherCode]);
+    }catch (e){
+        temp = [];
+    }
+    console.log(temp)
+    response.status = true;
+    response.data = temp[0]
+    res.send(JSON.stringify(response));
 })
 
 module.exports = router;
