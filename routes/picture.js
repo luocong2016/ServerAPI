@@ -89,14 +89,15 @@ router.post('/putPicture', function (req, res, next){
             return
         }
 
-        let avatarName  = `${new Date().toLocaleDateString()}_${Math.random().toString(16).substr(2)}.${extName}`; //图片写入地址
+        //图片新文件名
+        let avatarName  = `${new Date().toLocaleDateString()}_${Math.random().toString(16).substr(2)}.${extName}`;
         let picturePath = form.uploadDir + avatarName;
 
         //同步重命名文件名
         fs.renameSync(file.path, picturePath);
 
         response.status = true;
-        response.data = '/' + picturePath;
+        response.data = '/picture/' + avatarName;
         res.send(JSON.stringify(response));
     })
 })

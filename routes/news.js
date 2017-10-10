@@ -74,63 +74,57 @@ router.post('/getNewsList', async function(req, res, next) {
 
 router.post('/updateNews', async function(req, res, next) {
     const response = {status: false}
+
+    let lock = {
+        newsCode: true,
+        newsTitle: true,
+        newsSynopsis: true,
+        newsDetail: true,
+        newsPicture: false, //production => true
+        validCode: false,
+    }
+
     let {
-        teacherCode,
-        teacherName,
-        teacherSynopsis,
-        teacherPicture,
-        cellPhone,
-        courseTypeCode,
-        weight,
-        schoolCode,
-        validCode = 0
+        newsCode,
+        newsTitle,
+        newsSynopsis,
+        newsDetail,
+        newsPicture,
+        validCode = 0,
     } = req.body
 
-    if(!teacherCode || teacherCode.length !== UUID_MAX){
-        response.message = `teacherCode: error`
-        res.send(JSON.stringify(response));
-        return
-    }
+    Object.keys(lock).map(item => {
+        if(!BoolFunc(req.body[item]) && lock[item]){
+            response.message = message.notNull + item;
+            res.send(JSON.stringify(response));
+            return
+        }
+    })
 
-    if(courseTypeCode && courseTypeCode.split('^').length > UpperLimit){
-        response.message = `courseTypeCode: Not greater than ${UpperLimit}`
-        res.send(JSON.stringify(response));
-        return
-    }
-
-    let select = "SELECT * FROM `teacher` WHERE `teacherCode` = ?;";
+    let select = "SELECT * FROM `news` WHERE `newsCode` = ?;";
     let total = 0;
-    let selectResult = await operation(select, [teacherCode])
+
+    console.log("newsCode:", newsCode)
+
     try{
+        let selectResult = await operation(select, [newsCode])
         total = selectResult.length
     }catch(err) {
         response.message = err
     }
 
     if(total == 0){
-        response.message = `teacherCode: Non-existent`
+        response.message = `newsCode: Non-existent`
         res.send(JSON.stringify(response));
         return;
     }
 
-    if(teacherName == null){
-        response.message = `teacherName: IS NOT NULL`
-        res.send(JSON.stringify(response));
-        return
-    }
 
-    if(teacherSynopsis == null){
-        response.message = `teacherSynopsis: IS NOT NULL`
-        res.send(JSON.stringify(response));
-        return
-    }
-
-    let sql = "UPDATE `teacher` SET `teacherName` = ?, `teacherSynopsis` = ?, `teacherPicture` = ?, `cellPhone` = ?, `courseTypeCode` = ?, `weight` = ?, `schoolCode` = ?, `validCode` = ? WHERE `teacherCode` = ?;"
-    let dataArray = [teacherName, teacherSynopsis, teacherPicture, cellPhone, courseTypeCode, weight, schoolCode, validCode, teacherCode]
+    let sql = "UPDATE `news` SET `newsTitle` = ?, `newsSynopsis` = ?, `newsDetail` = ?, `newsPicture` = ?, `validCode` = ? WHERE `newsCode` = ?;"
+    let dataArray = [ newsTitle, newsSynopsis, newsDetail, newsPicture, validCode, newsCode]
     console.log("sql:",sql,"data", dataArray)
 
     const result = operation(sql, dataArray);
-
     result.then(function(data){
         response.status = true;
         response.data = 'UPDATE: success';
@@ -141,7 +135,7 @@ router.post('/updateNews', async function(req, res, next) {
     });
 })
 
-router.post('/insertNews', function(req, res, next){
+router.post('/insertNews', async function(req, res, next){
     let response = { status: false }
     let lock = {
         newsCode: false,
@@ -161,6 +155,7 @@ router.post('/insertNews', function(req, res, next){
         validCode = 0
     } = req.body
 
+
     Object.keys(lock).map(item => {
         if(!BoolFunc(req.body[item]) && lock[item]){
             response.message = `${item}: Is not null`;
@@ -171,8 +166,10 @@ router.post('/insertNews', function(req, res, next){
 
     let sql = "INSERT INTO `news`(`newsCode`, `newsTitle`, `newsSynopsis`, `newsDetail`, `newsPicture`, `validCode`) VALUES(UUID(), ?, ?, ?, ?, ?);"
     let dataArrary = [newsTitle, newsSynopsis, newsDetail, newsPicture, validCode];
-    console.log(sql)
-    const result = operation(sql, dataArrary);
+    console.log(sql, dataArrary)
+
+    const result =operation(sql, dataArrary);
+    console.log(result)
     result.then(function(data){
         response.status = true;
         response.data = 'INSERT: success';
