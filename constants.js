@@ -54,6 +54,7 @@ const ListTemp = (data = [], pageSize = SIZE, pageCurrent = CURRENT, total = 0, 
 /* message */
 const message = {
     nonentity: 'Nonentity: ', // 不存在
+    existence: 'Existence.',
     notNull: 'Not null: ',    // 不能为空
     unknownError: 'Unknown Error.', //未知错误
     successful: 'Successful operation.', //操作成功
