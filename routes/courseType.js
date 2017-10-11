@@ -11,7 +11,7 @@ const { operation } = require('../db/mysqlOperation');
 
 const { CURRENT, SIZE, UUID_MAX, UpperLimit, IntFunc, BoolFunc, ListTemp, message } = require('../constants')
 
-router.post('/getCourseTypesList', async function(req, res, next) {
+router.post('/getCourseTypeList', async function(req, res, next) {
     let response = { status: false }
     let sql = "SELECT * FROM `courseType`";
     let where = "";
@@ -20,7 +20,7 @@ router.post('/getCourseTypesList', async function(req, res, next) {
     let total = 0;
     let dataArray = [];
 
-    let { courseTypeCode, courseTypeName, pageCurrent, pageSize } = req.body;
+    let { courseTypeCode, courseTypeName, pageCurrent, pageSize, Limit = 0 } = req.body;
 
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
@@ -31,6 +31,10 @@ router.post('/getCourseTypesList', async function(req, res, next) {
     }else if(BoolFunc(courseTypeName)) {
         where = " WHERE `courseTypeName` LIKE ?";
         dataArray.push(`%${courseTypeName}%`);
+    }
+
+    if(Limit){
+        limit = '';
     }
 
     try {
@@ -61,11 +65,10 @@ router.post('/updateCourseType', async function(req, res, next) {
     let lock = {
         courseTypeCode: true,
         courseTypeName: true,
-        validCode: false
     }
 
     const response = {status: false}
-    let { courseTypeCode, courseTypeName, validCode = 0 } = req.body
+    let { courseTypeCode, courseTypeName } = req.body
 
     Object.keys(lock).map(item => {
         if(!BoolFunc(req.body[item]) && lock[item]){
@@ -75,26 +78,31 @@ router.post('/updateCourseType', async function(req, res, next) {
         }
     })
 
-    let select = "SELECT * FROM `courseType` WHERE `courseTypeCode` = ?";
-    const selectResult = await operation(select, [courseTypeCode]);
+    console.log(0)
 
-    console.log(selectResult)
-    if(selectResult.length <1 ){
+    let select = "SELECT * FROM `courseType` WHERE `courseTypeCode` = ?";
+    let total = 0;
+    try {
+        const selectResult = await operation(select, [courseTypeCode]);
+        total = selectResult.length;
+    } catch (err) {
+        total = 0;
+    }
+
+    if(total < 1){
         response.message = message.nonentity + "courseTypeCode";
         res.send(JSON.stringify(response));
         return
     }
 
+    let sql = "UPDATE `courseType` SET `courseTypeName` = ? WHERE `courseTypeCode` =?;";
 
-    let sql = "UPDATE `courseType` SET `courseTypeName` = ?,`validCode` = ? WHERE `courseTypeCode` =?;";
-
-    const result = operation(sql, [courseTypeName, validCode, courseTypeCode]);
-    result.then(function(data){
-        console.log(data)
+    const result = operation(sql, [courseTypeName, courseTypeCode]);
+    result.then(function(data) {
         response.status = true;
-        response.data = 'UPDATE: success';
+        response.data = message.successful;
         res.send(JSON.stringify(response));
-    }).catch(function(err){
+    }).catch(function(err) {
         response.message = err;
         res.send(JSON.stringify(response));
     });
@@ -109,12 +117,11 @@ router.post('/insertCourseType', async function(req, res, next){
         return
     }
 
-    let total =0;
+    let total = 0;
     const selcet = "SELECT * FORM `courseType` WHERE `courserTypeName` = ?";
     try{
        let selectResult = await operation(selcet, [courseTypeName]);
        total = selectResult.length;
-       console.log(total)
     } catch (err){
         response.message = err;
     }
@@ -126,8 +133,6 @@ router.post('/insertCourseType', async function(req, res, next){
     }
 
     let sql = "INSERT INTO `courseType` (`courseTypeCode`, `courseTypeName`) VALUES(UUID(), ?);"
-    console.log(sql, courseTypeName)
-
     const result = operation(sql, [courseTypeName]);
     result.then(function(data){
         response.status = true;
@@ -167,7 +172,6 @@ router.post('/deleteCourseType', function(req, res, next){
 router.post('/getCourseTypeCode', async function(req, res, next){
     let response = { status: false };
     const { courseTypeCode } = req.body
-    console.log("getCourseTypeCode", courseTypeCode)
     if(!BoolFunc(courseTypeCode)){
         response.message = message.notNull + 'courseTypeCode';
         res.send(JSON.stringify(response));

@@ -9,7 +9,7 @@ const router = express.Router();
 
 const { operation } = require('../db/mysqlOperation');
 
-const { CURRENT, SIZE, UpperLimit, IntFunc, UUID_MAX } = require('../constants')
+const { CURRENT, SIZE, UpperLimit, IntFunc, UUID_MAX, ListTemp } = require('../constants')
 
 router.post('/getCourseList', async function(req, res, next) {
     let response = {status: false}
@@ -31,40 +31,18 @@ router.post('/getCourseList', async function(req, res, next) {
         let totalResult = await operation(sql + where, dataArray);
         total = totalResult.length;
         if(total<1){
-            response = {
-                status: true,
-                data: {
-                    list: [],
-                    pageSize,
-                    page: {
-                        total,
-                        current: pageCurrent,
-                    },
-                }
-            }
+            response = ListTemp(data, pageSize, pageCurrent, total);
             res.send(JSON.stringify(response));
             return;
         }
     }
-
-
 
     dataArray = [ ...dataArray,(pageCurrent -1 )* pageSize, pageCurrent * pageSize]
     sql += where + order + limit;
 
     const result = operation(sql, dataArray);
     result.then(function(data){
-        response = {
-            status: true,
-            data: {
-                list: data,
-                pageSize,
-                page: {
-                    total: data.length,
-                    current: pageCurrent,
-                },
-            }
-        }
+        response = ListTemp(data, pageSize, pageCurrent, total);
         res.send(JSON.stringify(response));
     }).catch(function(err){
         response.message = err;
@@ -162,6 +140,35 @@ router.post('/deleteCourse', function(req, res, next){
         response.message = err;
         res.send(JSON.stringify(response));
     });
+})
+
+router.post('/getCourseCode', async function(req, res, next){
+    let response = { status: false };
+    const { courseCode } = req.body
+    if(!BoolFunc(courseCode)){
+        response.message = message.notNull + 'courseCode';
+        res.send(JSON.stringify(response));
+        return
+    }
+
+    let sql = "SELECT * FROM `course`";
+    let where = "WHERE `courseCode` = ?";
+    let temp = [];
+
+    try {
+        temp = await operation(sql + where, [courseCode]);
+    } catch (err){
+        response.message = err;
+    }
+
+    if(temp.length > 0){
+        response = {
+            status: true,
+            data: temp[0]
+        };
+    }
+
+    res.send(JSON.stringify(response));
 })
 
 module.exports = router;
