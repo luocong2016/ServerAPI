@@ -20,24 +20,24 @@ router.post('/getTeacherList', async function(req, res, next) {
     let total = 0;
     let dataArray = [];
 
-    let { pageCurrent, pageSize, teacherName, courseTypeCode } = req.body;
+    let { pageCurrent, pageSize, teacherName, courseTypeCode, validCode = 0 } = req.body;
     pageCurrent = IntFunc(pageCurrent) || CURRENT;
     pageSize = IntFunc(pageSize) || SIZE;
 
-    console.log('pageSize:',pageSize, ',pageCurrent',pageCurrent, ',teacherName',teacherName, ',valiCode',validCode)
+    console.log('pageSize:',pageSize, ',pageCurrent',pageCurrent, ',teacherName',teacherName, ',validCode',validCode)
 
     if(BoolFunc(teacherName)){
-        where = " WHERE `teacherName` LIKE ?"
-        dataArray.push(`%${teacherName}%`)
+        where = " WHERE `teacherName` LIKE ? AND `validCode` = 0"
+        dataArray.push(`%${teacherName}%`, validCode)
     } else if(BoolFunc(courseTypeCode)) {
-        where = " WHERE `courseTypeCode` LIKE ?"
-        dataArray.push(`%${courseTypeCode}%`)
+        where = " WHERE `courseTypeCode` LIKE ? AND `validCode` = 0"
+        dataArray.push(`%${courseTypeCode}%`, validCode)
     }
 
-    console.log('SQL:',sql + where + order + limit)
+    console.log('SQL:',sql + where + order + limit, dataArray)
 
     try{
-        let selectResult = await operation(sql + where + order, [teacherCode])
+        let selectResult = await operation(sql + where + order, dataArray)
         total = selectResult.length
     }catch(err) {
         response.message = err

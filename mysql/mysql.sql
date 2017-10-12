@@ -36,6 +36,7 @@ CREATE TABLE `course`( #课程信息表
     `courseName` TINYTEXT DEFAULT NULL, #课程名称
     `courseSynopsis` TINYTEXT DEFAULT NULL, #课程描述
     `courseDetail` TEXT DEFAULT NULL, #课程详情
+    `coursePicture` VARCHAR(500) DEFAULT NULL, ##照片图片路径
     `createtime` datetime DEFAULT CURRENT_TIMESTAMP, #创建时间
     `updatetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP #修改时间
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

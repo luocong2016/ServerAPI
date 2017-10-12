@@ -49,7 +49,6 @@ router.post('/getCourseTypeList', async function(req, res, next) {
         res.send(JSON.stringify(response));
         return;
     }
-    console.log("sql:", sql + where + order + limit, [...dataArray,  (pageCurrent -1 )* pageSize, pageCurrent * pageSize])
 
     const result = operation(sql + where + order + limit, [...dataArray,  (pageCurrent -1 )* pageSize, pageCurrent * pageSize]);
     result.then(function(data){
