@@ -91,8 +91,9 @@ router.post('/updateCourse', async function(req, res, next) {
     let sql = "UPDATE `course` SET `courseTypeCode` = ?,`courseName` = ?,`courseSynopsis` = ?,`courseDetail` = ?, `coursePicture` = ? WHERE `courseCode` =?;";
 
     const result = operation(sql, [courseTypeCode, courseName, courseSynopsis, courseDetail, coursePicture, courseCode]);
+
     result.then(function(data){
-        console.log(data)
+        console.log("data", data)
         response.status = true;
         response.data = 'UPDATE: success';
         res.send(JSON.stringify(response));
